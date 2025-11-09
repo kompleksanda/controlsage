@@ -11,10 +11,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { auditLogs } from "@/lib/data";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, orderBy, query } from "firebase/firestore";
+import type { AuditLog } from "@/lib/data";
 import { formatDistanceToNow } from 'date-fns';
 
 export function AuditLogTable() {
+    const firestore = useFirestore();
+    const auditLogsQuery = useMemoFirebase(() => query(collection(firestore, 'auditLogs'), orderBy('date', 'desc')), [firestore]);
+    const { data: auditLogs, isLoading } = useCollection<AuditLog>(auditLogsQuery);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
   return (
     <Table>
       <TableHeader>
@@ -26,7 +36,7 @@ export function AuditLogTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {auditLogs.map((log) => (
+        {auditLogs?.map((log) => (
           <TableRow key={log.id}>
             <TableCell>
               <div className="flex items-center gap-2">
@@ -45,7 +55,7 @@ export function AuditLogTable() {
             </TableCell>
             <TableCell className="hidden md:table-cell">{log.details}</TableCell>
             <TableCell className="text-right text-muted-foreground">
-                {formatDistanceToNow(new Date(log.date), { addSuffix: true })}
+                {log.date && formatDistanceToNow(new Date((log.date as any).seconds * 1000), { addSuffix: true })}
             </TableCell>
           </TableRow>
         ))}

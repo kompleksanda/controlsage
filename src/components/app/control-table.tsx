@@ -19,7 +19,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { controls, type Control } from "@/lib/data";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import type { Control } from "@/lib/data";
+import { collection } from "firebase/firestore";
 
 function getStatusVariant(status: Control['status']) {
   switch (status) {
@@ -35,6 +37,14 @@ function getStatusVariant(status: Control['status']) {
 }
 
 export function ControlTable() {
+    const firestore = useFirestore();
+    const controlsQuery = useMemoFirebase(() => collection(firestore, 'controls'), [firestore]);
+    const { data: controls, isLoading } = useCollection<Control>(controlsQuery);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
   return (
     <Table>
       <TableHeader>
@@ -50,7 +60,7 @@ export function ControlTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {controls.map((control) => (
+        {controls?.map((control) => (
           <TableRow key={control.id}>
             <TableCell className="font-medium">{control.id}</TableCell>
             <TableCell>{control.name}</TableCell>

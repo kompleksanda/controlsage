@@ -21,7 +21,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { assets, type Asset } from "@/lib/data";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import type { Asset } from "@/lib/data";
+import { collection } from "firebase/firestore";
 
 function getStatusVariant(status: Asset['status']) {
   switch (status) {
@@ -52,6 +54,14 @@ function getClassificationVariant(classification: Asset['classification']) {
 }
 
 export function AssetTable() {
+  const firestore = useFirestore();
+  const assetsQuery = useMemoFirebase(() => collection(firestore, 'assets'), [firestore]);
+  const { data: assets, isLoading } = useCollection<Asset>(assetsQuery);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -68,7 +78,7 @@ export function AssetTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {assets.map((asset) => (
+        {assets?.map((asset) => (
           <TableRow key={asset.id}>
             <TableCell className="font-medium">{asset.name}</TableCell>
             <TableCell>{asset.type}</TableCell>
