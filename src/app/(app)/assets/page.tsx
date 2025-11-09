@@ -9,13 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle } from "lucide-react";
 import { AssetTable } from "@/components/app/asset-table";
 import { AiControlSuggester } from "@/components/app/ai-control-suggester";
+import { NewAssetForm } from "@/components/app/new-asset-form";
 
 export default function AssetsPage() {
   const [assetTypeFilter, setAssetTypeFilter] = useState('all');
+  const [isNewAssetDialogOpen, setIsNewAssetDialogOpen] = useState(false);
 
   return (
       <div className="grid flex-1 items-start gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
@@ -29,12 +32,22 @@ export default function AssetsPage() {
                                   Manage and monitor your organization&apos;s IT assets.
                               </CardDescription>
                           </div>
-                          <Button size="sm" className="gap-1">
-                              <PlusCircle className="h-3.5 w-3.5" />
-                              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                  New Asset
-                              </span>
-                          </Button>
+                          <Dialog open={isNewAssetDialogOpen} onOpenChange={setIsNewAssetDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button size="sm" className="gap-1">
+                                    <PlusCircle className="h-3.5 w-3.5" />
+                                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                        New Asset
+                                    </span>
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Create New Asset</DialogTitle>
+                                </DialogHeader>
+                                <NewAssetForm setDialogOpen={setIsNewAssetDialogOpen} />
+                            </DialogContent>
+                          </Dialog>
                       </div>
                   </CardHeader>
                   <CardContent>
