@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ControlSageLogo } from '@/components/icons';
-import { initiateEmailSignIn, useAuth } from '@/firebase';
+import { initiateEmailSignIn, useAuth, initiateGoogleSignIn } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FirebaseClientProvider } from '@/firebase';
@@ -36,6 +36,23 @@ function LoginComponent() {
         setError(error.message);
         unsubscribe();
     });
+  };
+
+  const handleGoogleSignIn = () => {
+    setError(null);
+    if (!auth) return;
+
+    initiateGoogleSignIn(auth);
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          router.push('/dashboard');
+          unsubscribe();
+        }
+      }, (error) => {
+          setError(error.message);
+          unsubscribe();
+      });
   };
 
   return (
@@ -84,8 +101,8 @@ function LoginComponent() {
               <Button type="submit" className="w-full">
                 Login
               </Button>
-              <Button variant="outline" className="w-full">
-                Login with SSO
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn}>
+                Login with Google
               </Button>
             </div>
           </form>
