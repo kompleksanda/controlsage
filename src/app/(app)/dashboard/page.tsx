@@ -8,11 +8,10 @@ import {
 } from "@/components/ui/card"
 import { DollarSign, ShieldCheck, Server, AlertTriangle } from "lucide-react"
 import { DashboardCharts } from "@/components/app/dashboard-charts"
-import { FirebaseClientProvider } from "@/firebase";
 
 export default function DashboardPage() {
   return (
-    <FirebaseClientProvider>
+    <>
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -70,6 +69,6 @@ export default function DashboardPage() {
         </Card>
       </div>
       <DashboardCharts />
-    </FirebaseClientProvider>
+    </>
   )
 }

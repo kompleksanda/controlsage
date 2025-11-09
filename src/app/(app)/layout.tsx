@@ -10,6 +10,7 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
+    <FirebaseClientProvider>
       <SidebarProvider>
         <AppSidebar />
         <div className="flex flex-col flex-1">
@@ -21,5 +22,6 @@ export default function AppLayout({
           </SidebarInset>
         </div>
       </SidebarProvider>
+    </FirebaseClientProvider>
   );
 }

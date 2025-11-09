@@ -18,6 +18,9 @@ import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { userRoles } from "@/lib/data";
+import { useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const getPageTitle = (pathname: string) => {
   switch (pathname) {
@@ -38,6 +41,15 @@ export function AppHeader() {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
   const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar");
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    if (auth) {
+      signOut(auth);
+      router.push('/login');
+    }
+  };
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
@@ -87,8 +99,8 @@ export function AppHeader() {
                 <DropdownMenuItem key={role}>{role}</DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-                <Link href="/login">Logout</Link>
+            <DropdownMenuItem onClick={handleLogout}>
+                Logout
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

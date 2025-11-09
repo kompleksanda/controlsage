@@ -8,19 +8,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ControlSageLogo } from '@/components/icons';
-import { initiateEmailSignIn } from '@/firebase';
+import { initiateEmailSignUp } from '@/firebase';
 import { useAuth, FirebaseClientProvider } from '@/firebase';
 
-function LoginComponent() {
+function SignUpComponent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const auth = useAuth();
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) return;
-    initiateEmailSignIn(auth, email, password);
+    initiateEmailSignUp(auth, email, password);
     router.push('/dashboard');
   };
 
@@ -29,11 +29,11 @@ function LoginComponent() {
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader className="space-y-1 text-center">
           <ControlSageLogo className="w-12 h-12 mx-auto text-primary" />
-          <CardTitle className="text-2xl font-bold">Welcome to ControlSage</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
+          <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
+          <CardDescription>Enter your email and password to sign up</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleSignUp}>
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -47,12 +47,7 @@ function LoginComponent() {
                 />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="ml-auto inline-block text-sm underline">
-                    Forgot your password?
-                  </Link>
-                </div>
+                <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -62,17 +57,14 @@ function LoginComponent() {
                 />
               </div>
               <Button type="submit" className="w-full">
-                Login
-              </Button>
-              <Button variant="outline" className="w-full">
-                Login with SSO
+                Sign Up
               </Button>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="underline">
+              Login
             </Link>
           </div>
         </CardContent>
@@ -81,10 +73,10 @@ function LoginComponent() {
   );
 }
 
-export default function LoginPage() {
+export default function SignUpPage() {
     return (
         <FirebaseClientProvider>
-            <LoginComponent />
+            <SignUpComponent />
         </FirebaseClientProvider>
     )
 }

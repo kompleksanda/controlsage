@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarHeader,
@@ -20,6 +20,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { ControlSageLogo } from "@/components/icons";
+import { useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 
 const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -30,6 +32,15 @@ const menuItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    if (auth) {
+      signOut(auth);
+      router.push('/login');
+    }
+  };
 
   return (
     <Sidebar>
@@ -66,11 +77,9 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Log Out">
-              <Link href="/login">
-                  <LogOut />
-                  <span>Log Out</span>
-              </Link>
+            <SidebarMenuButton onClick={handleLogout} tooltip="Log Out">
+              <LogOut />
+              <span>Log Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
