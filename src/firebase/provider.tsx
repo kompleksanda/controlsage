@@ -111,6 +111,14 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     };
   }, [firebaseApp, firestore, auth, userAuthState]);
 
+  if (contextValue.isUserLoading) {
+    return (
+        <div className="flex items-center justify-center h-screen">
+            <div>Loading...</div>
+        </div>
+    );
+  }
+
   return (
     <FirebaseContext.Provider value={contextValue}>
       <FirebaseErrorListener />
