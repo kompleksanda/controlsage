@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ControlSageLogo } from '@/components/icons';
 import { initiateEmailSignIn } from '@/firebase';
-import { useAuth } from '@/firebase';
+import { useAuth, FirebaseClientProvider } from '@/firebase';
 
-export default function LoginPage() {
+function LoginComponent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const auth = useAuth();
@@ -79,4 +79,12 @@ export default function LoginPage() {
       </Card>
     </div>
   );
+}
+
+export default function LoginPage() {
+    return (
+        <FirebaseClientProvider>
+            <LoginComponent />
+        </FirebaseClientProvider>
+    )
 }
