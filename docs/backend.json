@@ -1,0 +1,390 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user in the system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "User's role (Admin, Control Owner, Auditor, Viewer)."
+        },
+        "activityLog": {
+          "type": "string",
+          "description": "Log of user's activities for auditing purposes."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "role"
+      ]
+    },
+    "Asset": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Asset",
+      "type": "object",
+      "description": "Represents an IT asset within the organization.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Asset entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the asset."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the asset (e.g., server, application)."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Asset) Owner of the asset."
+        },
+        "classification": {
+          "type": "string",
+          "description": "Classification of the asset (e.g., critical, confidential)."
+        },
+        "lifecycleStatus": {
+          "type": "string",
+          "description": "Lifecycle status of the asset."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category",
+        "ownerId",
+        "classification",
+        "lifecycleStatus"
+      ]
+    },
+    "Control": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Control",
+      "type": "object",
+      "description": "Represents a security or IT control.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Control entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the control."
+        },
+        "framework": {
+          "type": "string",
+          "description": "Compliance framework mapping (e.g., ISO 27001, NIST)."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of control (preventive, detective, corrective)."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Control) Responsible owner for the control."
+        },
+        "testingFrequency": {
+          "type": "string",
+          "description": "Frequency of control testing."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "framework",
+        "type",
+        "ownerId",
+        "testingFrequency"
+      ]
+    },
+    "ControlImplementation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ControlImplementation",
+      "type": "object",
+      "description": "Represents the implementation of a control on a specific asset.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ControlImplementation entity."
+        },
+        "controlId": {
+          "type": "string",
+          "description": "Reference to Control. (Relationship: Control 1:N ControlImplementation) The control being implemented."
+        },
+        "assetId": {
+          "type": "string",
+          "description": "Reference to Asset. (Relationship: Asset 1:N ControlImplementation) The asset the control is implemented on."
+        },
+        "evidenceLink": {
+          "type": "string",
+          "description": "Link to evidence of control implementation.",
+          "format": "uri"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of control implementation (Not Implemented, In Progress, Implemented, Verified)."
+        },
+        "lastVerified": {
+          "type": "string",
+          "description": "last date the control was verified.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "controlId",
+        "assetId",
+        "status"
+      ]
+    },
+    "ComplianceReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ComplianceReport",
+      "type": "object",
+      "description": "Represents a compliance report.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ComplianceReport entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the report."
+        },
+        "dateGenerated": {
+          "type": "string",
+          "description": "Date the report was generated.",
+          "format": "date-time"
+        },
+        "format": {
+          "type": "string",
+          "description": "Format of the report (PDF, Excel)."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N ComplianceReport) User who generated the report."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "dateGenerated",
+        "format",
+        "userId"
+      ]
+    },
+    "Framework": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Framework",
+      "type": "object",
+      "description": "Represents a compliance framework (e.g., ISO 27001, NIST).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Framework entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the framework."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the framework."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "ControlFrameworkMapping": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ControlFrameworkMapping",
+      "type": "object",
+      "description": "Represents the mapping between a control and a framework.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ControlFrameworkMapping entity."
+        },
+        "controlId": {
+          "type": "string",
+          "description": "Reference to Control. (Relationship: Control 1:N ControlFrameworkMapping) The control being mapped."
+        },
+        "frameworkId": {
+          "type": "string",
+          "description": "Reference to Framework. (Relationship: Framework 1:N ControlFrameworkMapping) The framework the control is mapped to."
+        }
+      },
+      "required": [
+        "id",
+        "controlId",
+        "frameworkId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user data. Path-based ownership ensures only the user or an admin can access the data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/assets/{assetId}",
+        "definition": {
+          "entityName": "Asset",
+          "schema": {
+            "$ref": "#/backend/entities/Asset"
+          },
+          "description": "Stores assets owned by a specific user. Enforces path-based ownership for security.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "assetId",
+              "description": "The unique identifier of the asset."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/controls/{controlId}",
+        "definition": {
+          "entityName": "Control",
+          "schema": {
+            "$ref": "#/backend/entities/Control"
+          },
+          "description": "Stores controls owned by a specific user. Enforces path-based ownership for security.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "controlId",
+              "description": "The unique identifier of the control."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/controlImplementations/{controlImplementationId}",
+        "definition": {
+          "entityName": "ControlImplementation",
+          "schema": {
+            "$ref": "#/backend/entities/ControlImplementation"
+          },
+          "description": "Stores control implementations. Includes denormalized 'ownerId' for authorization independence.",
+          "params": [
+            {
+              "name": "controlImplementationId",
+              "description": "The unique identifier of the control implementation."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/complianceReports/{complianceReportId}",
+        "definition": {
+          "entityName": "ComplianceReport",
+          "schema": {
+            "$ref": "#/backend/entities/ComplianceReport"
+          },
+          "description": "Stores compliance reports generated by a user. Path-based ownership ensures only the generating user has access.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "complianceReportId",
+              "description": "The unique identifier of the compliance report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/frameworks/{frameworkId}",
+        "definition": {
+          "entityName": "Framework",
+          "schema": {
+            "$ref": "#/backend/entities/Framework"
+          },
+          "description": "Stores compliance frameworks. Allows global read access but restricts modification to admins.",
+          "params": [
+            {
+              "name": "frameworkId",
+              "description": "The unique identifier of the framework."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/controlFrameworkMappings/{controlFrameworkMappingId}",
+        "definition": {
+          "entityName": "ControlFrameworkMapping",
+          "schema": {
+            "$ref": "#/backend/entities/ControlFrameworkMapping"
+          },
+          "description": "Stores mappings between controls and frameworks. Allows global read access but restricts modification to admins.",
+          "params": [
+            {
+              "name": "controlFrameworkMappingId",
+              "description": "The unique identifier of the control framework mapping."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "role",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Indicates if a user is an admin. Existence of the document grants admin privileges.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the ControlSage application's requirements for managing IT and Information Security controls. It emphasizes authorization independence through denormalization, structural segregation for simplified security rules, and consistent access modeling. The structure uses hierarchical paths for user-owned data and membership maps for collaborative entities, enabling secure and scalable operations. Segregation ensures that each collection has a homogeneous security posture, simplifying rules and enhancing maintainability. Specifically:\n\n*   **Authorization Independence:** The structure avoids `get()` calls in security rules by denormalizing relevant authorization data. For example, if access to `ControlImplementations` depends on the `Control` or `Asset` owner, the `ownerId` is copied into the `ControlImplementation` documents.\n*   **QAPs Support:** The structure supports secure `list` operations through structural segregation and consistent access modeling. Path-based ownership (e.g., `/users/{userId}/assets/{assetId}`) ensures that listing assets for a specific user is secure and efficient. Collections like `/roles_admin/{uid}` allow for easy role-based access control without complex rule logic.\n*   **User Management:** Uses the `/users/{userId}` path to store user-specific data, enforcing ownership-based access control.\n*   **Asset and Control Management:** Leverages hierarchical paths under users (e.g., `/users/{userId}/assets/{assetId}`, `/users/{userId}/controls/{controlId}`) to maintain ownership and simplify access rules.\n*   **Control Implementation:** Stores `ControlImplementation` documents under both `Asset` and `Control` for efficient querying and reporting. The `ownerId` is denormalized for authorization.\n*   **Framework and ControlFrameworkMapping:** Stores `Framework` and `ControlFrameworkMapping` as top-level collections, allowing global access while restricting modification to admins. The `ControlFrameworkMapping` includes references to both `Control` and `Framework`.\n*   **ComplianceReport:** Stores `ComplianceReport` documents under `/users/{userId}/complianceReports/{complianceReportId}` to ensure only the generating user has access.\n*   **Global Roles:** Uses dedicated collections (e.g., `/roles_admin/{uid}`) to manage global roles such as administrators."
+  }
+}
