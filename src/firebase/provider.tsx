@@ -62,10 +62,16 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   auth,
 }) => {
     const [userAuthState, setUserAuthState] = useState<UserAuthState>({
-        user: auth?.currentUser ?? null,
+        user: null,
         isUserLoading: true,
         userError: null,
     });
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
@@ -110,7 +116,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     };
   }, [firebaseApp, firestore, auth, userAuthState]);
 
-  if (userAuthState.isUserLoading) {
+  if (userAuthState.isUserLoading && hasMounted) {
     return (
         <div className="flex items-center justify-center h-screen">
             <div>Loading...</div>
