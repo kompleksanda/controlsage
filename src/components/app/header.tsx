@@ -87,9 +87,9 @@ export function AppHeader() {
                 <DropdownMenuItem key={role}>{role}</DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <Link href="/login" passHref>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem asChild>
+                <Link href="/login">Logout</Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
