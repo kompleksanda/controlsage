@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import type { Control } from "@/lib/data";
-import { collection } from "firebase/firestore";
+import { collection, query, where } from "firebase/firestore";
 
 function getStatusVariant(status: Control['status']) {
   switch (status) {
@@ -36,9 +36,20 @@ function getStatusVariant(status: Control['status']) {
   }
 }
 
-export function ControlTable() {
+interface ControlTableProps {
+  frameworkFilter: string;
+}
+
+export function ControlTable({ frameworkFilter }: ControlTableProps) {
     const firestore = useFirestore();
-    const controlsQuery = useMemoFirebase(() => collection(firestore, 'controls'), [firestore]);
+    const controlsQuery = useMemoFirebase(() => {
+      const baseCollection = collection(firestore, 'controls');
+      if (frameworkFilter === 'all') {
+        return baseCollection;
+      }
+      return query(baseCollection, where('framework', '==', frameworkFilter));
+    }, [firestore, frameworkFilter]);
+    
     const { data: controls, isLoading } = useCollection<Control>(controlsQuery);
 
     if (isLoading) {

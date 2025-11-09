@@ -10,16 +10,16 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <div className="flex flex-col flex-1">
-        <AppHeader />
-        <SidebarInset>
-          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
-            <FirebaseClientProvider>{children}</FirebaseClientProvider>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <div className="flex flex-col flex-1">
+          <AppHeader />
+          <SidebarInset>
+            <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
+              {children}
+            </main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
   );
 }

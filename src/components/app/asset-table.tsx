@@ -23,7 +23,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import type { Asset } from "@/lib/data";
-import { collection } from "firebase/firestore";
+import { collection, query, where } from "firebase/firestore";
 
 function getStatusVariant(status: Asset['status']) {
   switch (status) {
@@ -53,9 +53,21 @@ function getClassificationVariant(classification: Asset['classification']) {
   }
 }
 
-export function AssetTable() {
+interface AssetTableProps {
+  assetTypeFilter: string;
+}
+
+export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   const firestore = useFirestore();
-  const assetsQuery = useMemoFirebase(() => collection(firestore, 'assets'), [firestore]);
+  
+  const assetsQuery = useMemoFirebase(() => {
+    const baseCollection = collection(firestore, 'assets');
+    if (assetTypeFilter === 'all') {
+      return baseCollection;
+    }
+    return query(baseCollection, where('type', '==', assetTypeFilter));
+  }, [firestore, assetTypeFilter]);
+
   const { data: assets, isLoading } = useCollection<Asset>(assetsQuery);
 
   if (isLoading) {
