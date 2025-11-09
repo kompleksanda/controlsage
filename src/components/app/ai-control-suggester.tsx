@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useFormStatus } from 'react';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { getSuggestions } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import { Lightbulb, ListChecks, Loader2 } from 'lucide-react';
 const initialState = {
   message: null,
   suggestions: [],
+  errors: undefined
 };
 
 function SubmitButton() {
