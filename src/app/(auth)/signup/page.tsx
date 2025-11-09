@@ -8,20 +8,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ControlSageLogo } from '@/components/icons';
-import { initiateEmailSignUp } from '@/firebase';
-import { useAuth, FirebaseClientProvider } from '@/firebase';
+import { initiateEmailSignUp, useAuth } from '@/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FirebaseClientProvider } from '@/firebase';
 
 function SignUpComponent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const auth = useAuth();
   const router = useRouter();
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (!auth) return;
+    
     initiateEmailSignUp(auth, email, password);
-    router.push('/dashboard');
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          router.push('/dashboard');
+          unsubscribe();
+        }
+      }, (error) => {
+          setError(error.message);
+          unsubscribe();
+      });
   };
 
   return (
@@ -33,6 +47,12 @@ function SignUpComponent() {
           <CardDescription>Enter your email and password to sign up</CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTitle>Sign-up Failed</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={handleSignUp}>
             <div className="space-y-4">
               <div className="space-y-2">
