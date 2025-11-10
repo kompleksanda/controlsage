@@ -37,7 +37,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const publicRoutes = ['/', '/login', '/signup', '/forgot-password'];
+  const publicRoutes = ['/login', '/signup', '/forgot-password'];
   const isLoggedIn = await checkAuth();
   const currentPath = headers().get('next-url') || '';
   
@@ -45,7 +45,7 @@ export default async function RootLayout({
     redirect('/login');
   }
 
-  if (isLoggedIn && publicRoutes.includes(currentPath) && currentPath !== '/') {
+  if (isLoggedIn && publicRoutes.includes(currentPath)) {
     redirect('/dashboard');
   }
 
