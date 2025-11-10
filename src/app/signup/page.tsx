@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -26,15 +27,17 @@ export default function SignUpPage() {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user && firestore) {
+          const isSpecialAdmin = user.email === 'bynarikompleks@gmail.com';
           const userRef = doc(firestore, 'users', user.uid);
+          
           setDocumentNonBlocking(userRef, {
             id: user.uid,
             email: user.email,
-            role: 'Viewer' // Default role
+            role: isSpecialAdmin ? 'Admin' : 'Viewer'
           }, { merge: true });
 
           // Check if the user is the special admin
-          if (user.email === 'bynarikompleks@gmail.com') {
+          if (isSpecialAdmin) {
             const adminRoleRef = doc(firestore, 'roles_admin', user.uid);
             // Create a document in roles_admin to grant admin privileges
             setDocumentNonBlocking(adminRoleRef, {
