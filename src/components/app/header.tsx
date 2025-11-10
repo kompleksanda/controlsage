@@ -2,9 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Search, Bell } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Search, Bell, Check } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,17 +11,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { userRoles } from "@/lib/data";
-import { useAuth } from "@/firebase";
+import { useAuth, useFirebase } from "@/firebase";
 import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
 
 const getPageTitle = (pathname: string) => {
+  const detailsRegex = /\/(assets|controls)\/.+/;
+  if (detailsRegex.test(pathname)) {
+    const page = pathname.split('/')[1];
+    return page === 'assets' ? 'Asset Details' : 'Control Details';
+  }
+
   switch (pathname) {
     case "/dashboard":
       return "Dashboard";
@@ -42,6 +48,7 @@ export function AppHeader() {
   const pageTitle = getPageTitle(pathname);
   const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar");
   const auth = useAuth();
+  const { user, baseRole, activeRole, setActiveRole, isRoleLoading } = useFirebase();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -50,6 +57,19 @@ export function AppHeader() {
       router.push('/login');
     }
   };
+
+  const handleRoleChange = (role: string) => {
+    if (userRoles.includes(role as any)) {
+      setActiveRole(role as any);
+    }
+  }
+
+  if (!user) {
+    return (
+        <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
+        </header>
+    );
+  }
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
@@ -77,7 +97,7 @@ export function AppHeader() {
             <Button variant="ghost" size="icon" className="rounded-full">
               {userAvatar && (
                 <Image
-                  src={userAvatar.imageUrl}
+                  src={user?.photoURL || userAvatar.imageUrl}
                   width={36}
                   height={36}
                   alt="User Avatar"
@@ -89,15 +109,23 @@ export function AppHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Admin User</DropdownMenuLabel>
+            <DropdownMenuLabel>{user?.displayName || user?.email} ({activeRole})</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Switch Role</DropdownMenuLabel>
-            {userRoles.map((role) => (
-                <DropdownMenuItem key={role}>{role}</DropdownMenuItem>
-            ))}
+            {baseRole === 'Admin' && (
+                <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Switch Role</DropdownMenuLabel>
+                    <DropdownMenuRadioGroup value={activeRole ?? ''} onValueChange={handleRoleChange}>
+                        {userRoles.map((role) => (
+                           <DropdownMenuRadioItem key={role} value={role}>
+                             {role}
+                           </DropdownMenuRadioItem>
+                        ))}
+                    </DropdownMenuRadioGroup>
+                </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
                 Logout

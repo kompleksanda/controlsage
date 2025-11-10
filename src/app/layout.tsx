@@ -6,6 +6,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app/app-sidebar';
 import { AppHeader } from '@/components/app/header';
 import { FirebaseClientProvider } from '@/firebase';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'ControlSage',
@@ -17,6 +18,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const publicRoutes = ['/login', '/signup', '/forgot-password'];
+  // This is a placeholder for a real auth check
+  const isLoggedIn = false; 
+  // const currentPath = ''; // This would come from headers() in a real app
+  
+  // if (!isLoggedIn && !publicRoutes.includes(currentPath)) {
+  //   redirect('/login');
+  // }
+
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

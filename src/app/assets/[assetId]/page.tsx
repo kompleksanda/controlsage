@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase, useFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { NewAssetForm } from '@/components/app/new-asset-form';
@@ -15,24 +14,16 @@ export default function AssetDetailsPage() {
   const params = useParams();
   const { assetId } = params;
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { isAdmin, isRoleLoading } = useFirebase();
 
   const assetRef = useMemoFirebase(() => {
     if (!firestore || !assetId) return null;
     return doc(firestore, 'assets', assetId as string);
   }, [firestore, assetId]);
 
-  const adminRoleRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'roles_admin', user.uid);
-  }, [firestore, user]);
-
-  const { data: adminRole } = useDoc(adminRoleRef);
-  const isAdmin = !!adminRole;
-
   const { data: asset, isLoading } = useDoc<Asset>(assetRef);
 
-  if (isLoading) {
+  if (isLoading || isRoleLoading) {
     return <div className="flex items-center justify-center h-screen">Loading asset details...</div>;
   }
 

@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser, useFirebase } from "@/firebase";
 import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { useToast } from "@/hooks/use-toast";
 import type { Asset } from "@/lib/data";
@@ -72,7 +72,7 @@ interface AssetTableProps {
 
 export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
+  const { user, isUserLoading, isAdmin } = useFirebase();
   const { toast } = useToast();
   const router = useRouter();
   
@@ -88,13 +88,6 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
     return query(baseCollection, where('type', '==', assetTypeFilter));
   }, [firestore, user, assetTypeFilter]);
 
-  const adminRoleRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'roles_admin', user.uid);
-  }, [firestore, user]);
-
-  const { data: adminRole } = useDoc(adminRoleRef);
-  const isAdmin = !!adminRole;
 
   const { data: assets, isLoading } = useCollection<Asset>(assetsQuery);
 

@@ -14,22 +14,20 @@ import { FileDown, PlusCircle } from "lucide-react";
 import { ControlTable } from "@/components/app/control-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NewControlForm } from "@/components/app/new-control-form";
-import { useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useFirebase } from '@/firebase';
 
 export default function ControlsPage() {
   const [frameworkFilter, setFrameworkFilter] = useState('all');
   const [isNewControlDialogOpen, setIsNewControlDialogOpen] = useState(false);
-  const { user } = useUser();
-  const firestore = useFirestore();
+  const { user, isAdmin, isRoleLoading } = useFirebase();
 
-  const adminRoleRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'roles_admin', user.uid);
-  }, [firestore, user]);
+  if (isRoleLoading) {
+    return <div>Loading...</div>;
+  }
 
-  const { data: adminRole } = useDoc(adminRoleRef);
-  const isAdmin = !!adminRole;
+  if (!user) {
+      return <div>Please log in to continue.</div>;
+  }
 
   return (
     <Card>
