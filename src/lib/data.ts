@@ -7,6 +7,7 @@ export type Asset = {
   status: 'Active' | 'Inactive' | 'Decommissioned';
   compliance: number;
   tags?: string[];
+  relatedAssetIds?: string[];
 };
 
 export const assets: Asset[] = [

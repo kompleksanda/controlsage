@@ -21,10 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFirestore, useUser, setDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useUser, setDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Asset } from '@/lib/data';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Asset name is required.'),
@@ -33,6 +34,7 @@ const assetSchema = z.object({
   classification: z.enum(['Critical', 'High', 'Medium', 'Low']),
   status: z.enum(['Active', 'Inactive', 'Decommissioned']),
   tags: z.string().optional(),
+  relatedAssetIds: z.array(z.string()).optional(),
 });
 
 type AssetFormValues = z.infer<typeof assetSchema>;
@@ -48,6 +50,20 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
   const { toast } = useToast();
   const isEditMode = !!asset;
 
+  const assetsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'assets');
+  }, [firestore]);
+  const { data: allAssets } = useCollection<Asset>(assetsQuery);
+
+  const assetOptions = useMemo(() => {
+    if (!allAssets) return [];
+    // Exclude the current asset from the list of options
+    return allAssets
+      .filter(a => a.id !== asset?.id)
+      .map(a => ({ value: a.id, label: a.name }));
+  }, [allAssets, asset]);
+
   const form = useForm<AssetFormValues>({
     resolver: zodResolver(assetSchema),
     defaultValues: {
@@ -57,6 +73,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
       classification: asset?.classification,
       status: asset?.status,
       tags: asset?.tags?.join(', ') || '',
+      relatedAssetIds: asset?.relatedAssetIds || [],
     },
   });
 
@@ -218,6 +235,27 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
               <FormMessage />
             </FormItem>
           )}
+        />
+        <FormField
+            control={form.control}
+            name="relatedAssetIds"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Related Assets</FormLabel>
+                <FormControl>
+                    <MultiSelect
+                        options={assetOptions}
+                        selected={field.value || []}
+                        onChange={field.onChange}
+                        placeholder="Select related assets..."
+                        />
+                </FormControl>
+                <FormDescription>
+                    Link this asset to other assets in the system.
+                </FormDescription>
+                <FormMessage />
+                </FormItem>
+            )}
         />
         <Button type="submit">{isEditMode ? 'Save Changes' : 'Create Asset'}</Button>
       </form>

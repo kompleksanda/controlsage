@@ -9,6 +9,7 @@ import type { Asset } from '@/lib/data';
 import { BackButton } from '@/components/app/back-button';
 import { AssignedControlsTable } from '@/components/app/assigned-controls-table';
 import { Separator } from '@/components/ui/separator';
+import { RelatedAssetsCard } from '@/components/app/related-assets-card';
 
 export default function AssetDetailsPage() {
   const params = useParams();
@@ -55,6 +56,7 @@ export default function AssetDetailsPage() {
                             </CardContent>
                         </Card>
                     )}
+                     <RelatedAssetsCard asset={asset} />
                     <Card>
                         <CardHeader>
                             <CardTitle>Assigned Controls</CardTitle>
