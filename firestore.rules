@@ -11,8 +11,8 @@
  *
  * Data Structure:
  * - /users/{userId}: Stores user profiles. Only the user themselves can read/write.
- * - /assets: Publicly readable list of assets.
- * - /controls: Publicly readable list of controls.
+ * - /assets: Publicly readable list of assets. Authenticated users can write.
+ * - /controls: Publicly readable list of controls. Authenticated users can write.
  * - /auditLogs: Publicly readable list of audit logs.
  * - /users/{userId}/assets/{assetId}: Assets owned by a specific user.
  * - /users/{userId}/controls/{controlId}: Controls owned by a specific user.
@@ -67,10 +67,12 @@ service cloud.firestore {
     
     match /assets/{assetId} {
       allow get, list: if isSignedIn();
+      allow write: if isSignedIn();
     }
     
     match /controls/{controlId} {
       allow get, list: if isSignedIn();
+      allow write: if isSignedIn();
     }
 
     match /auditLogs/{auditLogId} {
@@ -207,6 +209,11 @@ service cloud.firestore {
         allow update: if false; // Prevent modifications to admin status documents.
         allow delete: if isAdmin() && resource != null; // Only existing admins can delete admin roles.
       }
+      
+      match /controlAssignments/{assignmentId} {
+        allow write: if isSignedIn();
+        allow read: if isSignedIn();
+      }
 
   }
 
@@ -246,3 +253,5 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
   }
 }
+
+    

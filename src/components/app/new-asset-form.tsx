@@ -27,6 +27,7 @@ import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-b
 import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Asset } from '@/lib/data';
+import { useRouter } from 'next/navigation';
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Asset name is required.'),
@@ -48,6 +49,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
+  const router = useRouter();
   const isEditMode = !!asset;
 
   const form = useForm<AssetFormValues>({
@@ -68,7 +70,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
     try {
       const tagsArray = values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
       
-      if (isEditMode) {
+      if (isEditMode && asset) {
         const assetRef = doc(firestore, 'assets', asset.id);
         setDocumentNonBlocking(assetRef, {
             ...asset,
@@ -79,14 +81,17 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
           title: 'Asset updated',
           description: `${values.name} has been successfully updated.`,
         });
+        router.push('/assets');
       } else {
         const assetsCollection = collection(firestore, 'assets');
-        addDocumentNonBlocking(assetsCollection, {
+        const newAssetId = `ASSET-${String(Date.now()).slice(-5)}`;
+        const assetRef = doc(assetsCollection, newAssetId);
+        setDocumentNonBlocking(assetRef, {
           ...values,
+          id: newAssetId,
           tags: tagsArray,
           compliance: Math.floor(Math.random() * 101), // Random compliance for now
-          id: `ASSET-${String(Date.now()).slice(-5)}`, // simple unique id
-        });
+        }, {});
         toast({
           title: 'Asset created',
           description: `${values.name} has been successfully created.`,
@@ -222,3 +227,5 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
     </Form>
   );
 }
+
+    

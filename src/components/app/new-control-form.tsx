@@ -23,8 +23,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useFirestore } from '@/firebase';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { collection } from 'firebase/firestore';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 const controlSchema = z.object({
@@ -62,7 +62,8 @@ export function NewControlForm({ setDialogOpen }: NewControlFormProps) {
 
     try {
       const controlsCollection = collection(firestore, 'controls');
-      addDocumentNonBlocking(controlsCollection, values);
+      const controlRef = doc(controlsCollection, values.id);
+      setDocumentNonBlocking(controlRef, values, {});
       toast({
         title: 'Control created',
         description: `${values.name} has been successfully created.`,
@@ -211,3 +212,5 @@ export function NewControlForm({ setDialogOpen }: NewControlFormProps) {
     </Form>
   );
 }
+
+    

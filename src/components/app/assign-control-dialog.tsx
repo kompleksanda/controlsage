@@ -12,8 +12,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { collection } from 'firebase/firestore';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Control, Asset } from '@/lib/data';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -72,15 +72,17 @@ export function AssignControlDialog({ isOpen, setIsOpen, control }: AssignContro
 
     try {
       const assignmentsCollection = collection(firestore, 'controlAssignments');
-      const assignmentPromises = selectedAssets.map(assetId => 
-        addDocumentNonBlocking(assignmentsCollection, {
+      const assignmentPromises = selectedAssets.map(assetId => {
+        const assignmentId = `ASGN-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+        const assignmentRef = doc(assignmentsCollection, assignmentId);
+        return setDocumentNonBlocking(assignmentRef, {
             controlId: control.id,
             assetId: assetId,
             assignedBy: user.uid,
             assignedAt: new Date().toISOString(),
-            id: `ASGN-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        })
-      );
+            id: assignmentId,
+        }, {});
+      });
       
       await Promise.all(assignmentPromises);
 
@@ -173,4 +175,5 @@ export function AssignControlDialog({ isOpen, setIsOpen, control }: AssignContro
     </Dialog>
   );
 }
+    
     
