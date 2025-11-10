@@ -61,11 +61,11 @@
           "description": "Lifecycle status of the asset."
         },
         "tags": {
-            "type": "array",
-            "description": "Tags for grouping assets.",
-            "items": {
-              "type": "string"
-            }
+          "type": "array",
+          "description": "Tags for grouping assets.",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -241,6 +241,42 @@
         "controlId",
         "frameworkId"
       ]
+    },
+    "ControlAssignment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ControlAssignment",
+      "type": "object",
+      "description": "Represents the assignment of a control to an asset.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ControlAssignment entity."
+        },
+        "controlId": {
+          "type": "string",
+          "description": "Reference to the Control being assigned."
+        },
+        "assetId": {
+          "type": "string",
+          "description": "Reference to the Asset the control is assigned to."
+        },
+        "assignedBy": {
+          "type": "string",
+          "description": "Reference to the User who assigned the control."
+        },
+        "assignedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of when the assignment was made."
+        }
+      },
+      "required": [
+        "id",
+        "controlId",
+        "assetId",
+        "assignedBy",
+        "assignedAt"
+      ]
     }
   },
   "auth": {
@@ -388,6 +424,22 @@
             {
               "name": "userId",
               "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/controlAssignments/{assignmentId}",
+        "definition": {
+          "entityName": "ControlAssignment",
+          "schema": {
+            "$ref": "#/backend/entities/ControlAssignment"
+          },
+          "description": "Stores control assignments. Allows authorized users to manage assignments.",
+          "params": [
+            {
+              "name": "assignmentId",
+              "description": "The unique identifier of the control assignment."
             }
           ]
         }

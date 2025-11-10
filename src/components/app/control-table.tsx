@@ -22,6 +22,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import type { Control } from "@/lib/data";
 import { collection, query, where } from "firebase/firestore";
+import { AssignControlDialog } from "./assign-control-dialog";
 
 function getStatusVariant(status: Control['status']) {
   switch (status) {
@@ -51,12 +52,20 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
     }, [firestore, frameworkFilter]);
     
     const { data: controls, isLoading } = useCollection<Control>(controlsQuery);
+    const [selectedControl, setSelectedControl] = React.useState<Control | null>(null);
+    const [isAssignDialogOpen, setIsAssignDialogOpen] = React.useState(false);
+
+    const handleAssignClick = (control: Control) => {
+        setSelectedControl(control);
+        setIsAssignDialogOpen(true);
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
     }
 
   return (
+    <>
     <Table>
       <TableHeader>
         <TableRow>
@@ -91,7 +100,7 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem>View Details</DropdownMenuItem>
-                  <DropdownMenuItem>Assign to Asset</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => handleAssignClick(control)}>Assign to Asset</DropdownMenuItem>
                   <DropdownMenuItem>Upload Evidence</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -100,5 +109,14 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
         ))}
       </TableBody>
     </Table>
+    {selectedControl && (
+        <AssignControlDialog
+          isOpen={isAssignDialogOpen}
+          setIsOpen={setIsAssignDialogOpen}
+          control={selectedControl}
+        />
+    )}
+    </>
   );
 }
+    
