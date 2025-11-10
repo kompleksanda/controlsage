@@ -18,6 +18,7 @@ import {
   History,
   Settings,
   LogOut,
+  LifeBuoy,
 } from "lucide-react";
 import { ControlSageLogo } from "@/components/icons";
 import { useAuth } from "@/firebase";
@@ -70,6 +71,14 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/documentation'} tooltip="Documentation">
+                <Link href="/documentation">
+                    <LifeBuoy />
+                    <span>Documentation</span>
+                </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
              <SidebarMenuButton tooltip="Settings">
                 <Settings />
