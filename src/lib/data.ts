@@ -1,7 +1,7 @@
 export type Asset = {
   id: string;
   name: string;
-  type: 'Server' | 'Application' | 'Database' | 'Endpoint';
+  type: 'Server' | 'Application' | 'Database' | 'Endpoint' | 'Software';
   owner: string;
   classification: 'Critical' | 'High' | 'Medium' | 'Low';
   status: 'Active' | 'Inactive' | 'Decommissioned';
@@ -54,6 +54,12 @@ export const auditLogs: AuditLog[] = [
   { id: 'LOG-005', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), user: 'Alice Johnson', userAvatar: 'https://picsum.photos/seed/10/40/40', action: 'Change Status', details: 'Asset ASSET-005 status changed to "Inactive"' },
 ];
 
-export const userRoles = ['Admin', 'Control Owner', 'Auditor', 'Viewer'];
+export type ControlAssignment = {
+  id: string;
+  controlId: string;
+  assetId: string;
+  assignedBy: string;
+  assignedAt: string;
+};
 
-    
+export const userRoles = ['Admin', 'Control Owner', 'Auditor', 'Viewer'];

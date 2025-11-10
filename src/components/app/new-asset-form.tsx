@@ -28,7 +28,7 @@ import type { Asset } from '@/lib/data';
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Asset name is required.'),
-  type: z.enum(['Server', 'Application', 'Database', 'Endpoint']),
+  type: z.enum(['Server', 'Application', 'Database', 'Endpoint', 'Software']),
   owner: z.string().min(1, 'Owner is required.'),
   classification: z.enum(['Critical', 'High', 'Medium', 'Low']),
   status: z.enum(['Active', 'Inactive', 'Decommissioned']),
@@ -138,6 +138,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
                   <SelectItem value="Application">Application</SelectItem>
                   <SelectItem value="Database">Database</SelectItem>
                   <SelectItem value="Endpoint">Endpoint</SelectItem>
+                  <SelectItem value="Software">Software</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
