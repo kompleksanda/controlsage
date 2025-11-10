@@ -65,81 +65,51 @@ service cloud.firestore {
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
-
+    
     /**
-     * @description Rules for assets owned by a user.
-     * @path /users/{userId}/assets/{assetId}
-     * @allow (create) User 'user123' can create an asset under their profile with ownerId set to 'user123': auth.uid == 'user123' && request.resource.data.ownerId == 'user123'
-     * @allow (get, list, update, delete) User 'user123' can read, list, update, or delete their own assets: auth.uid == 'user123' && resource.data.ownerId == 'user123'
-     * @deny (create) User 'user456' cannot create an asset under 'user123's profile: auth.uid != 'user123'
-     * @deny (get, list, update, delete) User 'user456' cannot read, list, update, or delete assets owned by 'user123': auth.uid != 'user123'
-     * @principle Enforces document ownership for all operations on user assets.
+     * @description Rules for the admin roles collection.
+     * @path /roles_admin/{userId}
+     * @allow (create) A new user can create their admin role document ONLY if they are the special admin email.
+     * @allow (get) Any signed-in user can check if another user is an admin. This is required for UI rendering.
+     * @deny (list, update, delete) No one can list, update, or delete admin roles directly.
      */
-    match /users/{userId}/assets/{assetId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.ownerId == userId;
-      allow update: if isExistingOwner(userId) && resource.data.ownerId == userId;
-      allow delete: if isExistingOwner(userId);
+    match /roles_admin/{userId} {
+      allow get: if isSignedIn();
+      allow list, update, delete: if false;
+      allow create: if isOwner(userId) && request.auth.token.email == 'bynarikompleks@gmail.com';
     }
 
     /**
-     * @description Rules for controls owned by a user.
-     * @path /users/{userId}/controls/{controlId}
-     * @allow (create) User 'user123' can create a control under their profile with ownerId set to 'user123': auth.uid == 'user123' && request.resource.data.ownerId == 'user123'
-     * @allow (get, list, update, delete) User 'user123' can read, list, update, or delete their own controls: auth.uid == 'user123' && resource.data.ownerId == 'user123'
-     * @deny (create) User 'user456' cannot create a control under 'user123's profile: auth.uid != 'user123'
-     * @deny (get, list, update, delete) User 'user456' cannot read, list, update, or delete controls owned by 'user123': auth.uid != 'user123'
-     * @principle Enforces document ownership for all operations on user controls.
+     * @description Rules for assets. These are now top-level. Access is granted if user is an admin.
+     * @path /assets/{assetId}
+     * @allow (get, list) Any signed-in user can read and list assets.
+     * @allow (create, update, delete) Only admin users can create, update, or delete assets.
      */
-    match /users/{userId}/controls/{controlId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.ownerId == userId;
-      allow update: if isExistingOwner(userId) && resource.data.ownerId == userId;
-      allow delete: if isExistingOwner(userId);
+    match /assets/{assetId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
     /**
-     * @description Rules for control implementations (publicly readable).
-     * @path /controlImplementations/{controlImplementationId}
-     * @allow (get, list) Any user can read control implementations.
-     * @allow (create, update, delete) Only signed-in users can create, update, or delete control implementations.
-     * @principle Allows public read access and signed-in user write access to control implementations.
+     * @description Rules for controls. These are now top-level. Access is granted if user is an admin.
+     * @path /controls/{controlId}
+     * @allow (get, list) Any signed-in user can read and list controls.
+     * @allow (create, update, delete) Only admin users can create, update, or delete controls.
      */
-    match /controlImplementations/{controlImplementationId} {
-      allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+    match /controls/{controlId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
-
+    
     /**
-     * @description Rules for compliance frameworks (publicly readable).
-     * @path /frameworks/{frameworkId}
-     * @allow (get, list) Any user can read compliance frameworks.
-     * @allow (create, update, delete) Only signed-in users can create, update, or delete compliance frameworks.
-     * @principle Allows public read access and signed-in user write access to compliance frameworks.
+     * @description Rules for control assignments. Access is granted if user is an admin.
+     * @path /controlAssignments/{assignmentId}
+     * @allow (get, list) Any signed-in user can read assignments.
+     * @allow (create, delete) Only admins can create or delete assignments.
      */
-    match /frameworks/{frameworkId} {
-      allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
-    }
-
-    /**
-     * @description Rules for control framework mappings (publicly readable).
-     * @path /controlFrameworkMappings/{controlFrameworkMappingId}
-     * @allow (get, list) Any user can read control framework mappings.
-     * @allow (create, update, delete) Only signed-in users can create, update, or delete control framework mappings.
-     * @principle Allows public read access and signed-in user write access to control framework mappings.
-     */
-    match /controlFrameworkMappings/{controlFrameworkMappingId} {
-      allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+    match /controlAssignments/{assignmentId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
     /**
@@ -147,7 +117,6 @@ service cloud.firestore {
      * @path /auditLogs/{auditLogId}
      * @allow (get, list) Any user can read audit logs.
      * @allow (create, update, delete) Only signed-in users can create, update, or delete audit logs.
-     * @principle Allows public read access and signed-in user write access to audit logs.
      */
     match /auditLogs/{auditLogId} {
       allow get, list: if true;
