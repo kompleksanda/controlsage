@@ -22,7 +22,6 @@ async function checkAuth() {
     if (!sessionCookie) return false;
   
     try {
-        // This will throw an error if the cookie is invalid
         await getAuth(getApp()).verifySessionCookie(sessionCookie, true);
         return true;
     } catch (error) {
