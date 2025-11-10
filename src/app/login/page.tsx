@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ControlSageLogo } from '@/components/icons';
 import { initiateEmailSignIn, useAuth, initiateGoogleSignIn } from '@/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type AuthError } from 'firebase/auth';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
@@ -19,6 +19,14 @@ export default function LoginPage() {
   const auth = useAuth();
   const router = useRouter();
 
+  const handleAuthError = useCallback((error: AuthError) => {
+    if (error.code === 'auth/operation-not-allowed') {
+      setError('This sign-in method is not enabled. Please enable it in your Firebase project\'s Authentication settings.');
+    } else {
+      setError(error.message);
+    }
+  }, []);
+
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -26,22 +34,22 @@ export default function LoginPage() {
         router.push('/dashboard');
       }
     }, (error) => {
-        setError(error.message);
+      handleAuthError(error as AuthError);
     });
     return () => unsubscribe();
-  }, [auth, router]);
+  }, [auth, router, handleAuthError]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (!auth) return;
-    initiateEmailSignIn(auth, email, password);
+    initiateEmailSignIn(auth, email, password).catch(handleAuthError);
   };
 
   const handleGoogleSignIn = () => {
     setError(null);
     if (!auth) return;
-    initiateGoogleSignIn(auth);
+    initiateGoogleSignIn(auth).catch(handleAuthError);
   };
 
   return (
