@@ -59,6 +59,13 @@
         "lifecycleStatus": {
           "type": "string",
           "description": "Lifecycle status of the asset."
+        },
+        "tags": {
+            "type": "array",
+            "description": "Tags for grouping assets.",
+            "items": {
+              "type": "string"
+            }
         }
       },
       "required": [
@@ -389,3 +396,4 @@
     "reasoning": "The Firestore data structure is designed to support the ControlSage application's requirements for managing IT and Information Security controls. It emphasizes authorization independence through denormalization, structural segregation for simplified security rules, and consistent access modeling. The structure uses hierarchical paths for user-owned data and membership maps for collaborative entities, enabling secure and scalable operations. Segregation ensures that each collection has a homogeneous security posture, simplifying rules and enhancing maintainability. Specifically:\n\n*   **Authorization Independence:** The structure avoids `get()` calls in security rules by denormalizing relevant authorization data. For example, if access to `ControlImplementations` depends on the `Control` or `Asset` owner, the `ownerId` is copied into the `ControlImplementation` documents.\n*   **QAPs Support:** The structure supports secure `list` operations through structural segregation and consistent access modeling. Path-based ownership (e.g., `/users/{userId}/assets/{assetId}`) ensures that listing assets for a specific user is secure and efficient. Collections like `/roles_admin/{uid}` allow for easy role-based access control without complex rule logic.\n*   **User Management:** Uses the `/users/{userId}` path to store user-specific data, enforcing ownership-based access control.\n*   **Asset and Control Management:** Leverages hierarchical paths under users (e.g., `/users/{userId}/assets/{assetId}`, `/users/{userId}/controls/{controlId}`) to maintain ownership and simplify access rules.\n*   **Control Implementation:** Stores `ControlImplementation` documents under both `Asset` and `Control` for efficient querying and reporting. The `ownerId` is denormalized for authorization.\n*   **Framework and ControlFrameworkMapping:** Stores `Framework` and `ControlFrameworkMapping` as top-level collections, allowing global access while restricting modification to admins. The `ControlFrameworkMapping` includes references to both `Control` and `Framework`.\n*   **ComplianceReport:** Stores `ComplianceReport` documents under `/users/{userId}/complianceReports/{complianceReportId}` to ensure only the generating user has access.\n*   **Global Roles:** Uses dedicated collections (e.g., `/roles_admin/{uid}`) to manage global roles such as administrators."
   }
 }
+    

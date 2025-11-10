@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,6 +32,7 @@ const assetSchema = z.object({
   owner: z.string().min(1, 'Owner is required.'),
   classification: z.enum(['Critical', 'High', 'Medium', 'Low']),
   status: z.enum(['Active', 'Inactive', 'Decommissioned']),
+  tags: z.string().optional(),
 });
 
 type AssetFormValues = z.infer<typeof assetSchema>;
@@ -49,6 +51,7 @@ export function NewAssetForm({ setDialogOpen }: NewAssetFormProps) {
     defaultValues: {
       name: '',
       owner: '',
+      tags: '',
     },
   });
 
@@ -57,8 +60,11 @@ export function NewAssetForm({ setDialogOpen }: NewAssetFormProps) {
 
     try {
       const assetsCollection = collection(firestore, 'assets');
+      const tagsArray = values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+      
       addDocumentNonBlocking(assetsCollection, {
         ...values,
+        tags: tagsArray,
         compliance: Math.floor(Math.random() * 101), // Random compliance for now
         id: `ASSET-${String(Date.now()).slice(-5)}`, // simple unique id
       });
@@ -174,8 +180,26 @@ export function NewAssetForm({ setDialogOpen }: NewAssetFormProps) {
             </FormItem>
           )}
         />
+         <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tags</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., backend, pci-scope" {...field} />
+              </FormControl>
+              <FormDescription>
+                Comma-separated tags for grouping assets.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type="submit">Create Asset</Button>
       </form>
     </Form>
   );
 }
+
+    

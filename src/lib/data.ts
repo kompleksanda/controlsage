@@ -6,15 +6,16 @@ export type Asset = {
   classification: 'Critical' | 'High' | 'Medium' | 'Low';
   status: 'Active' | 'Inactive' | 'Decommissioned';
   compliance: number;
+  tags?: string[];
 };
 
 export const assets: Asset[] = [
-  { id: 'ASSET-001', name: 'Production Web Server', type: 'Server', owner: 'Alice Johnson', classification: 'Critical', status: 'Active', compliance: 85 },
-  { id: 'ASSET-002', name: 'Customer Database', type: 'Database', owner: 'Bob Williams', classification: 'Critical', status: 'Active', compliance: 92 },
-  { id: 'ASSET-003', name: 'CRM Application', type: 'Application', owner: 'Charlie Brown', classification: 'High', status: 'Active', compliance: 78 },
-  { id: 'ASSET-004', name: 'Marketing Website', type: 'Application', owner: 'Diana Prince', classification: 'Medium', status: 'Active', compliance: 95 },
-  { id: 'ASSET-005', name: 'Development Server', type: 'Server', owner: 'Eve Adams', classification: 'Low', status: 'Inactive', compliance: 60 },
-  { id: 'ASSET-006', name: 'Employee Laptop', type: 'Endpoint', owner: 'Frank White', classification: 'Medium', status: 'Active', compliance: 99 },
+  { id: 'ASSET-001', name: 'Production Web Server', type: 'Server', owner: 'Alice Johnson', classification: 'Critical', status: 'Active', compliance: 85, tags: ['backend', 'critical-infra'] },
+  { id: 'ASSET-002', name: 'Customer Database', type: 'Database', owner: 'Bob Williams', classification: 'Critical', status: 'Active', compliance: 92, tags: ['pii', 'critical-infra'] },
+  { id: 'ASSET-003', name: 'CRM Application', type: 'Application', owner: 'Charlie Brown', classification: 'High', status: 'Active', compliance: 78, tags: ['sales', 'customer-data'] },
+  { id: 'ASSET-004', name: 'Marketing Website', type: 'Application', owner: 'Diana Prince', classification: 'Medium', status: 'Active', compliance: 95, tags: ['frontend', 'public-facing'] },
+  { id: 'ASSET-005', name: 'Development Server', type: 'Server', owner: 'Eve Adams', classification: 'Low', status: 'Inactive', compliance: 60, tags: ['dev-env'] },
+  { id: 'ASSET-006', name: 'Employee Laptop', type: 'Endpoint', owner: 'Frank White', classification: 'Medium', status: 'Active', compliance: 99, tags: ['employee-device'] },
 ];
 
 export type Control = {
@@ -54,3 +55,5 @@ export const auditLogs: AuditLog[] = [
 ];
 
 export const userRoles = ['Admin', 'Control Owner', 'Auditor', 'Viewer'];
+
+    
