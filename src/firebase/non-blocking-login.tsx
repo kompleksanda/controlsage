@@ -6,51 +6,41 @@ import {
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInAnonymously,
   sendPasswordResetEmail,
 } from 'firebase/auth';
-import { setCookie } from 'cookies-next';
-
-async function handleAuthSuccess(idToken: string) {
-    const response = await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${idToken}` }
-    });
-    if (!response.ok) {
-        throw new Error('Failed to create session');
-    }
-    const { sessionCookie } = await response.json();
-    setCookie('session', sessionCookie, {
-        maxAge: 60 * 60 * 24 * 5, // 5 days
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-    });
-}
+import { Firestore, doc } from 'firebase/firestore';
+import { setDocumentNonBlocking } from './non-blocking-updates';
 
 /** Initiate email/password sign-up (non-blocking). */
 export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
-  return createUserWithEmailAndPassword(authInstance, email, password).then(async (userCredential) => {
-    const idToken = await userCredential.user.getIdToken();
-    await handleAuthSuccess(idToken);
-  });
+  return createUserWithEmailAndPassword(authInstance, email, password).then(() => {});
 }
 
 /** Initiate email/password sign-in (non-blocking). */
-export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): Promise<void> {
-    return signInWithEmailAndPassword(authInstance, email, password).then(async (userCredential) => {
-        const idToken = await userCredential.user.getIdToken();
-        await handleAuthSuccess(idToken);
+export function initiateEmailSignIn(authInstance: Auth, firestore: Firestore, email: string, password: string): Promise<void> {
+    return signInWithEmailAndPassword(authInstance, email, password).then((userCredential) => {
+        // This is the special admin user.
+        if (userCredential.user.email === 'bynarikompleks@gmail.com') {
+            const adminRoleRef = doc(firestore, 'roles_admin', userCredential.user.uid);
+            setDocumentNonBlocking(adminRoleRef, { 
+                id: userCredential.user.uid,
+                email: userCredential.user.email
+            }, { merge: true });
+        }
     });
 }
 
 
 /** Initiate Google sign-in (non-blocking). */
 export function initiateGoogleSignIn(authInstance: Auth): Promise<void> {
-    const provider = new GoogleAuthProvider();
-    return signInWithPopup(authInstance, provider).then(async (userCredential) => {
-        const idToken = await userCredential.user.getIdToken();
-        await handleAuthSuccess(idToken);
-    });
+  const provider = new GoogleAuthProvider();
+  return signInWithPopup(authInstance, provider).then(() => {});
+}
+
+/** Initiate anonymous sign-in (non-blocking). */
+export function initiateAnonymousSignIn(authInstance: Auth): Promise<void> {
+  return signInAnonymously(authInstance).then(() => {});
 }
 
 /** Sends a password reset email. */
