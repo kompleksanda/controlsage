@@ -21,12 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFirestore, useUser } from '@/firebase';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useFirestore, useUser, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Asset } from '@/lib/data';
-import { useRouter } from 'next/navigation';
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Asset name is required.'),
@@ -48,7 +46,6 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
-  const router = useRouter();
   const isEditMode = !!asset;
 
   const form = useForm<AssetFormValues>({
@@ -95,7 +92,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
           tags: tagsArray,
           ownerId: user.uid,
           compliance: Math.floor(Math.random() * 101), // Random compliance for now
-        }, {});
+        }, { merge: true });
         toast({
           title: 'Asset created',
           description: `${values.name} has been successfully created.`,
