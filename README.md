@@ -11,6 +11,7 @@ ControlSage is a modern, AI-enhanced platform for managing IT and Information Se
 - **Component Library:** [ShadCN UI](https://ui.shadcn.com/)
 - **Backend & Database:** [Firebase](https://firebase.google.com/) (Authentication & Firestore)
 - **Generative AI:** [Genkit](https://firebase.google.com/docs/genkit)
+- **Containerization:** [Docker](https://www.docker.com/)
 
 ## Features
 
@@ -23,14 +24,17 @@ ControlSage is a modern, AI-enhanced platform for managing IT and Information Se
 
 ## Getting Started
 
-To get a local copy up and running, follow these simple steps.
+You can run this project locally using Node.js and npm, or with Docker.
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18 or later recommended)
 - [npm](https://www.npmjs.com/) or a compatible package manager
+- [Docker](https://www.docker.com/products/docker-desktop/) (for containerized setup)
 
-### Installation & Setup
+---
+
+### Installation & Setup (Local)
 
 1.  **Clone the repository**
     ```sh
@@ -54,7 +58,7 @@ To get a local copy up and running, follow these simple steps.
     ```
     This will create a dummy user and associate the sample data with it.
 
-### Running the Application
+### Running the Application (Local)
 
 1.  **Start the development server:**
     ```sh
@@ -69,6 +73,29 @@ To get a local copy up and running, follow these simple steps.
     ```
     This will start the Genkit flow server, typically on `http://localhost:4000`. Your Next.js app will communicate with this server for AI functionality.
 
+---
+
+### Installation & Setup (Docker)
+
+If you have Docker installed, you can build and run the application in a container.
+
+1.  **Build the Docker image**
+    From the root of the project directory, run the following command:
+    ```sh
+    docker build -t controlsage .
+    ```
+
+2.  **Run the Docker container**
+    Once the image is built, run it with the following command. This will start the application and map port 3000 from the container to your local machine.
+    ```sh
+    docker run -p 3000:3000 controlsage
+    ```
+
+3.  **Access the application**
+    You can now access the application in your browser at `http://localhost:3000`.
+
+    **Note on AI Features:** The Docker container runs the production build of the Next.js app, which communicates with Genkit flows directly on the server side. Ensure that any required API keys (e.g., for Google AI) are available as environment variables in your deployment environment.
+
 ## Application Structure
 
 - `src/app/`: Main application pages using the Next.js App Router.
@@ -77,3 +104,4 @@ To get a local copy up and running, follow these simple steps.
 - `src/ai/`: Contains Genkit flows for generative AI features.
 - `src/lib/`: Shared utilities, type definitions, and static data.
 - `firestore.rules`: Security rules for the Firestore database.
+- `Dockerfile`: Defines the container for deploying the application.
