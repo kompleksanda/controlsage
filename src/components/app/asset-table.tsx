@@ -72,7 +72,7 @@ interface AssetTableProps {
 
 export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const router = useRouter();
   
@@ -112,7 +112,7 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
     setAssetToDelete(null);
   };
 
-  if (isLoading) {
+  if (isLoading || isUserLoading) {
     return <div>Loading...</div>;
   }
 

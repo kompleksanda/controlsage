@@ -44,7 +44,7 @@ interface ControlTableProps {
 
 export function ControlTable({ frameworkFilter }: ControlTableProps) {
     const firestore = useFirestore();
-    const { user } = useUser();
+    const { user, isUserLoading } = useUser();
     const router = useRouter();
     
     const controlsQuery = useMemoFirebase(() => {
@@ -69,7 +69,7 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
       router.push(`/controls/${encodeURIComponent(control.id)}`);
     };
 
-    if (isLoading) {
+    if (isLoading || isUserLoading) {
         return <div>Loading...</div>;
     }
 
