@@ -15,7 +15,7 @@ ControlSage is a modern, AI-enhanced platform for managing IT and Information Se
 
 ## Screenshots
 
-![ControlSage Dashboard](https://storage.googleapis.com/gemini-studio-assets/project-emblem-images/control-sage-dashboard.png)
+![ControlSage Dashboard](https://imgur.com/a/pE5Wkm4)
 
 ## Features
 
