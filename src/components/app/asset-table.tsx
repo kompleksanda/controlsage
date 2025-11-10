@@ -161,7 +161,6 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem onSelect={() => handleEditClick(asset)}>View Details</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => handleEditClick(asset)}>Edit</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive"
