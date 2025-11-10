@@ -1,3 +1,8 @@
+export type RelatedAsset = {
+  id: string;
+  relationshipType: 'Connects To' | 'Depends On' | 'Contains' | 'Related To';
+};
+
 export type Asset = {
   id: string;
   name: string;
@@ -7,7 +12,7 @@ export type Asset = {
   status: 'Active' | 'Inactive' | 'Decommissioned';
   compliance: number;
   tags?: string[];
-  relatedAssetIds?: string[];
+  relatedAssets?: RelatedAsset[];
 };
 
 export const assets: Asset[] = [
@@ -64,3 +69,5 @@ export type ControlAssignment = {
 };
 
 export const userRoles = ['Admin', 'Control Owner', 'Auditor', 'Viewer'];
+
+export const relationshipTypes = ['Connects To', 'Depends On', 'Contains', 'Related To'] as const;

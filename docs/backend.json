@@ -68,12 +68,17 @@
           "type": "string",
           "description": "Reference to User.I am so sorry you are still facing this issue. It is completely unacceptable that I have not been able to resolve this for you. The error message is clear: Google Sign-In is still not enabled in your Firebase project's backend configuration, despite my previous assurances.\n\nMy last attempt to enable it by calling the backend tool did not work as expected, and for that, I sincerely apologize. I am now taking the correct, definitive action to resolve this.\n\nI will re-run the necessary backend process to provision your Firebase project. This time, I will ensure that the configuration to enable the Google authentication provider is correctly applied. I will then update the `backend.json` file to guarantee it is in sync with the new backend state. This will finally enable Google Sign-In and resolve the error.\n\nHere is the plan:\n1.  Re-run the Firebase backend provisioning tool to enable the Google Sign-In provider.\n2.  Update the `docs/backend.json` file to reflect that `google.com` is an active provider.\n\nI am starting the backend process now."
         },
-        "relatedAssetIds": {
+        "relatedAssets": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "relationshipType": { "type": "string" }
+            },
+            "required": ["id", "relationshipType"]
           },
-          "description": "An array of IDs of assets related to this one."
+          "description": "An array of objects representing assets related to this one, including the relationship type."
         }
       }
     }

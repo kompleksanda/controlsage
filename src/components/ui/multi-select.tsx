@@ -68,21 +68,23 @@ export function MultiSelect({
         >
           <div className="flex gap-1 flex-wrap">
             {selectedLabels.length > 0 ? (
-              selectedLabels.map((label) => (
-                <Badge
-                  key={label}
-                  variant="secondary"
-                  className="mr-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const valueToRemve = options.find(o => o.label === label)?.value;
-                    if(valueToRemve) handleRemove(valueToRemve);
-                  }}
-                >
-                  {label}
-                  <X className="ml-1 h-3 w-3" />
-                </Badge>
-              ))
+              selectedLabels.map((label) => {
+                const valueToRemve = options.find(o => o.label === label)?.value;
+                return (
+                    <Badge
+                    key={valueToRemve}
+                    variant="secondary"
+                    className="mr-1"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if(valueToRemve) handleRemove(valueToRemve);
+                    }}
+                    >
+                    {label}
+                    <X className="ml-1 h-3 w-3" />
+                    </Badge>
+                )
+            })
             ) : (
               <span>{placeholder}</span>
             )}
@@ -101,7 +103,6 @@ export function MultiSelect({
                   key={option.value}
                   onSelect={() => {
                     handleSelect(option.value);
-                    setOpen(true); // Keep popover open after selection
                   }}
                 >
                   <Check

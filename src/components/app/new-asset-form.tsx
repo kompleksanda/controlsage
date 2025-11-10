@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -25,8 +25,14 @@ import {
 import { useFirestore, useUser, setDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import type { Asset } from '@/lib/data';
-import { MultiSelect } from '@/components/ui/multi-select';
+import { Asset, relationshipTypes } from '@/lib/data';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const relatedAssetSchema = z.object({
+  id: z.string().min(1, 'Asset selection is required.'),
+  relationshipType: z.enum(relationshipTypes),
+});
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Asset name is required.'),
@@ -35,7 +41,7 @@ const assetSchema = z.object({
   classification: z.enum(['Critical', 'High', 'Medium', 'Low']),
   status: z.enum(['Active', 'Inactive', 'Decommissioned']),
   tags: z.string().optional(),
-  relatedAssetIds: z.array(z.string()).optional(),
+  relatedAssets: z.array(relatedAssetSchema).optional(),
 });
 
 type AssetFormValues = z.infer<typeof assetSchema>;
@@ -74,8 +80,13 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
       classification: asset?.classification,
       status: asset?.status,
       tags: asset?.tags?.join(', ') || '',
-      relatedAssetIds: asset?.relatedAssetIds || [],
+      relatedAssets: asset?.relatedAssets || [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'relatedAssets',
   });
 
   const onSubmit = async (values: AssetFormValues) => {
@@ -237,27 +248,82 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-            control={form.control}
-            name="relatedAssetIds"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Related Assets</FormLabel>
-                <FormControl>
-                    <MultiSelect
-                        options={assetOptions}
-                        selected={field.value || []}
-                        onChange={field.onChange}
-                        placeholder="Select related assets..."
-                        />
-                </FormControl>
+        
+        <Card>
+            <CardHeader>
+                <CardTitle>Related Assets</CardTitle>
                 <FormDescription>
-                    Link this asset to other assets in the system.
+                    Link this asset to other assets in the system and define the relationship.
                 </FormDescription>
-                <FormMessage />
-                </FormItem>
-            )}
-        />
+            </CardHeader>
+            <CardContent className="grid gap-6">
+                {fields.map((field, index) => (
+                    <div key={field.id} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-end">
+                         <FormField
+                            control={form.control}
+                            name={`relatedAssets.${index}.id`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Asset</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select an asset..." />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {assetOptions.map(option => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name={`relatedAssets.${index}.relationshipType`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Relationship</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a relationship" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {relationshipTypes.map(type => (
+                                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Remove relationship</span>
+                        </Button>
+                    </div>
+                ))}
+                 <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => append({ id: '', relationshipType: 'Related To' })}
+                    >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Relationship
+                </Button>
+            </CardContent>
+        </Card>
+        
         <Button type="submit">{isEditMode ? 'Save Changes' : 'Create Asset'}</Button>
       </form>
     </Form>
