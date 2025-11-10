@@ -14,10 +14,22 @@ import { FileDown, PlusCircle } from "lucide-react";
 import { ControlTable } from "@/components/app/control-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NewControlForm } from "@/components/app/new-control-form";
+import { useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function ControlsPage() {
   const [frameworkFilter, setFrameworkFilter] = useState('all');
   const [isNewControlDialogOpen, setIsNewControlDialogOpen] = useState(false);
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const adminRoleRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'roles_admin', user.uid);
+  }, [firestore, user]);
+
+  const { data: adminRole } = useDoc(adminRoleRef);
+  const isAdmin = !!adminRole;
 
   return (
     <Card>
@@ -36,22 +48,24 @@ export default function ControlsPage() {
                         Export
                     </span>
                 </Button>
-                <Dialog open={isNewControlDialogOpen} onOpenChange={setIsNewControlDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button size="sm" className="gap-1">
-                            <PlusCircle className="h-3.5 w-3.5" />
-                            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                New Control
-                            </span>
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Create New Control</DialogTitle>
-                        </DialogHeader>
-                        <NewControlForm setDialogOpen={setIsNewControlDialogOpen} />
-                    </DialogContent>
-                </Dialog>
+                {isAdmin && (
+                    <Dialog open={isNewControlDialogOpen} onOpenChange={setIsNewControlDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" className="gap-1">
+                                <PlusCircle className="h-3.5 w-3.5" />
+                                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                    New Control
+                                </span>
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Create New Control</DialogTitle>
+                            </DialogHeader>
+                            <NewControlForm setDialogOpen={setIsNewControlDialogOpen} />
+                        </DialogContent>
+                    </Dialog>
+                )}
             </div>
         </div>
       </CardHeader>
