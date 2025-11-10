@@ -3,7 +3,7 @@
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 
 interface FirebaseProviderProps {
@@ -61,38 +61,33 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   firestore,
   auth,
 }) => {
-    const [userAuthState, setUserAuthState] = useState<UserAuthState>({
-        user: null,
-        isUserLoading: true,
-        userError: null,
-    });
-    const [hasMounted, setHasMounted] = useState(false);
-
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
-
+  const [userAuthState, setUserAuthState] = useState<UserAuthState>({
+    user: null,
+    isUserLoading: true, // Start loading until first auth event
+    userError: null,
+  });
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    if (!auth) {
+    if (!auth) { // If no Auth service instance, cannot determine user state
       setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth service not provided.") });
       return;
     }
-  
+
+    setUserAuthState({ user: null, isUserLoading: true, userError: null }); // Reset on auth instance change
+
     const unsubscribe = onAuthStateChanged(
       auth,
-      (firebaseUser) => {
+      (firebaseUser) => { // Auth state determined
         setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
       },
-      (error) => {
+      (error) => { // Auth listener error
         console.error("FirebaseProvider: onAuthStateChanged error:", error);
         setUserAuthState({ user: null, isUserLoading: false, userError: error });
       }
     );
-  
-    return () => unsubscribe();
-  }, [auth]);
+    return () => unsubscribe(); // Cleanup
+  }, [auth]); // Depends on the auth instance
 
   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {
@@ -107,14 +102,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       userError: userAuthState.userError,
     };
   }, [firebaseApp, firestore, auth, userAuthState]);
-
-  if (userAuthState.isUserLoading && hasMounted) {
-    return (
-        <div className="flex items-center justify-center h-screen">
-            <div>Loading...</div>
-        </div>
-    );
-  }
 
   return (
     <FirebaseContext.Provider value={contextValue}>

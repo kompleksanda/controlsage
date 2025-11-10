@@ -4,41 +4,26 @@ import {
   signInAnonymously,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  AuthError
+  // Assume getAuth and app are initialized elsewhere
 } from 'firebase/auth';
 
 /** Initiate anonymous sign-in (non-blocking). */
-export function initiateAnonymousSignIn(authInstance: Auth): Promise<void> {
-  return signInAnonymously(authInstance).then(() => {}).catch(error => {
-    console.error("Anonymous sign-in failed", error);
-    throw error;
-  });
+export function initiateAnonymousSignIn(authInstance: Auth): void {
+  // CRITICAL: Call signInAnonymously directly. Do NOT use 'await signInAnonymously(...)'.
+  signInAnonymously(authInstance);
+  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }
 
 /** Initiate email/password sign-up (non-blocking). */
-export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
-  return createUserWithEmailAndPassword(authInstance, email, password).then(() => {}).catch(error => {
-    console.error("Email sign-up failed", error);
-    throw error;
-  });
+export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): void {
+  // CRITICAL: Call createUserWithEmailAndPassword directly. Do NOT use 'await createUserWithEmailAndPassword(...)'.
+  createUserWithEmailAndPassword(authInstance, email, password);
+  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }
 
 /** Initiate email/password sign-in (non-blocking). */
-export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): Promise<void> {
-  return signInWithEmailAndPassword(authInstance, email, password).then(() => {}).catch(error => {
-    console.error("Email sign-in failed", error);
-    throw error;
-  });
-}
-
-/** Initiate Google sign-in (non-blocking). */
-export function initiateGoogleSignIn(authInstance: Auth): Promise<void> {
-  const provider = new GoogleAuthProvider();
-  return signInWithPopup(authInstance, provider).then(() => {}).catch((error: AuthError) => {
-    console.error("Google sign-in failed", error);
-    // Re-throw the error so it can be caught by the caller
-    throw error;
-  });
+export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): void {
+  // CRITICAL: Call signInWithEmailAndPassword directly. Do NOT use 'await signInWithEmailAndPassword(...)'.
+  signInWithEmailAndPassword(authInstance, email, password);
+  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }
