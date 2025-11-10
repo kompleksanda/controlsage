@@ -13,6 +13,10 @@ ControlSage is a modern, AI-enhanced platform for managing IT and Information Se
 - **Generative AI:** [Genkit](https://firebase.google.com/docs/genkit)
 - **Containerization:** [Docker](https://www.docker.com/)
 
+## Screenshots
+
+![ControlSage Dashboard](https://storage.googleapis.com/gemini-studio-assets/project-emblem-images/control-sage-dashboard.png)
+
 ## Features
 
 - **Centralized Dashboard:** Get an at-a-glance overview of your security posture, including asset counts, compliance status, and risk distribution.
