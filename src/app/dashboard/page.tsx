@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/card"
 import { DollarSign, ShieldCheck, Server, AlertTriangle } from "lucide-react"
 import { DashboardCharts } from "@/components/app/dashboard-charts"
+import { AssetRelationshipGraph } from "@/components/app/asset-relationship-graph";
+import { Separator } from "@/components/ui/separator";
 
 export default function DashboardPage() {
   return (
@@ -68,7 +70,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <DashboardCharts />
+      <div className="grid grid-cols-1 gap-4 md:gap-8">
+        <DashboardCharts />
+        <Separator />
+        <AssetRelationshipGraph />
+      </div>
     </>
   )
 }
