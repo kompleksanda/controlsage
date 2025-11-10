@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -82,9 +81,13 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
           title: 'Asset updated',
           description: `${values.name} has been successfully updated.`,
         });
-        router.push('/assets');
+        if(setDialogOpen) {
+          // When editing from the asset details page, there is no dialog to close.
+          // We can refresh the page or rely on real-time updates.
+          // For now, we just show the toast.
+        }
       } else {
-        const newAssetId = `ASSET-${String(Date.now()).slice(-5)}`;
+        const newAssetId = `ASSET-${String(Date.now()).slice(-5)}-${Math.random().toString(36).substring(2, 7)}`;
         const assetRef = doc(assetsCollection, newAssetId);
         setDocumentNonBlocking(assetRef, {
           ...values,
