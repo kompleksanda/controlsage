@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   // Assume getAuth and app are initialized elsewhere
 } from 'firebase/auth';
 
@@ -34,4 +35,9 @@ export function initiateEmailSignIn(authInstance: Auth, email: string, password:
 export function initiateGoogleSignIn(authInstance: Auth): Promise<void> {
     const provider = new GoogleAuthProvider();
     return signInWithPopup(authInstance, provider).then(() => {});
+}
+
+/** Sends a password reset email. */
+export function sendPasswordReset(authInstance: Auth, email: string): Promise<void> {
+    return sendPasswordResetEmail(authInstance, email);
 }
