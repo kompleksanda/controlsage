@@ -3,14 +3,14 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ControlSageLogo } from '@/components/icons';
 import { initiateEmailSignUp, useAuth, setDocumentNonBlocking } from '@/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type AuthError } from 'firebase/auth';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { doc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
@@ -22,6 +22,10 @@ export default function SignUpPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
+
+  const handleAuthError = useCallback((error: AuthError) => {
+    setError(error.message);
+  }, []);
 
   useEffect(() => {
     if (!auth) return;
@@ -49,16 +53,20 @@ export default function SignUpPage() {
           router.push('/dashboard');
         }
       }, (error) => {
-          setError(error.message);
+          handleAuthError(error as AuthError);
       });
     return () => unsubscribe();
-  }, [auth, firestore, router]);
+  }, [auth, firestore, router, handleAuthError]);
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!auth) return;
-    initiateEmailSignUp(auth, email, password);
+    if (!auth) {
+        setError("Authentication service is not available.");
+        return;
+    };
+    initiateEmailSignUp(auth, email, password)
+        .catch(handleAuthError);
   };
 
   return (
@@ -97,6 +105,7 @@ export default function SignUpPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="At least 6 characters"
                 />
               </div>
               <Button type="submit" className="w-full">

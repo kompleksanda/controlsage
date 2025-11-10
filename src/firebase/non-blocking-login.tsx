@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Auth, // Import Auth type for type hinting
@@ -15,8 +16,8 @@ export function initiateAnonymousSignIn(authInstance: Auth): void {
 }
 
 /** Initiate email/password sign-up (non-blocking). */
-export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): void {
-  createUserWithEmailAndPassword(authInstance, email, password);
+export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
+  return createUserWithEmailAndPassword(authInstance, email, password).then(() => {});
 }
 
 /** Initiate email/password sign-in (non-blocking). */
