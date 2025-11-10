@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -43,6 +44,7 @@ interface ControlTableProps {
 
 export function ControlTable({ frameworkFilter }: ControlTableProps) {
     const firestore = useFirestore();
+    const router = useRouter();
     const controlsQuery = useMemoFirebase(() => {
       const baseCollection = collection(firestore, 'controls');
       if (frameworkFilter === 'all') {
@@ -58,6 +60,10 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
     const handleAssignClick = (control: Control) => {
         setSelectedControl(control);
         setIsAssignDialogOpen(true);
+    };
+
+    const handleViewDetailsClick = (control: Control) => {
+      router.push(`/controls/${control.id}`);
     };
 
     if (isLoading) {
@@ -99,7 +105,7 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>View Details</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => handleViewDetailsClick(control)}>View Details</DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => handleAssignClick(control)}>Assign to Asset</DropdownMenuItem>
                   <DropdownMenuItem>Upload Evidence</DropdownMenuItem>
                 </DropdownMenuContent>
