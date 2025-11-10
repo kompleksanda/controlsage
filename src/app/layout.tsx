@@ -1,5 +1,6 @@
 import React from 'react';
 import type {Metadata} from 'next';
+import { headers } from 'next/headers';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
@@ -7,26 +8,46 @@ import { AppSidebar } from '@/components/app/app-sidebar';
 import { AppHeader } from '@/components/app/header';
 import { FirebaseClientProvider } from '@/firebase';
 import { redirect } from 'next/navigation';
+import { getApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { cookies } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'ControlSage',
   description: 'Modern IT & Information Security Control Management',
 };
 
-export default function RootLayout({
+async function checkAuth() {
+    const sessionCookie = cookies().get('session')?.value;
+    if (!sessionCookie) return false;
+  
+    try {
+        // This will throw an error if the cookie is invalid
+        await getAuth(getApp()).verifySessionCookie(sessionCookie, true);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
 
   const publicRoutes = ['/login', '/signup', '/forgot-password'];
-  // This is a placeholder for a real auth check
-  const isLoggedIn = false; 
-  // const currentPath = ''; // This would come from headers() in a real app
+  const isLoggedIn = await checkAuth();
+  const currentPath = headers().get('next-url') || '';
   
-  // if (!isLoggedIn && !publicRoutes.includes(currentPath)) {
-  //   redirect('/login');
-  // }
+  if (!isLoggedIn && !publicRoutes.includes(currentPath)) {
+    redirect('/login');
+  }
+
+  if (isLoggedIn && publicRoutes.includes(currentPath)) {
+    redirect('/dashboard');
+  }
 
 
   return (

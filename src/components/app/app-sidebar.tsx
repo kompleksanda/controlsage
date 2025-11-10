@@ -36,9 +36,10 @@ export function AppSidebar() {
   const auth = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (auth) {
-      signOut(auth);
+      await signOut(auth);
+      await fetch('/api/auth/session', { method: 'DELETE' });
       router.push('/login');
     }
   };

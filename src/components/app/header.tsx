@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
@@ -38,8 +37,10 @@ const getPageTitle = (pathname: string) => {
       return "Control Library";
     case "/audit":
       return "Audit Log";
+    case "/documentation":
+        return "Documentation";
     default:
-      return "ControlSage";
+      return "";
   }
 };
 
@@ -51,10 +52,11 @@ export function AppHeader() {
   const { user, baseRole, activeRole, setActiveRole, isRoleLoading } = useFirebase();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (auth) {
-      signOut(auth);
-      router.push('/login');
+        await signOut(auth);
+        await fetch('/api/auth/session', { method: 'DELETE' });
+        router.push('/login');
     }
   };
 
@@ -64,7 +66,9 @@ export function AppHeader() {
     }
   }
 
-  if (!user) {
+  const isPublicPage = ['/login', '/signup', '/forgot-password'].includes(pathname);
+
+  if (isPublicPage || !user) {
     return (
         <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
         </header>
