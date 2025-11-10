@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,9 +23,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useFirestore, useUser } from '@/firebase';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { collection } from 'firebase/firestore';
+import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import type { Asset } from '@/lib/data';
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Asset name is required.'),
@@ -38,20 +40,25 @@ const assetSchema = z.object({
 type AssetFormValues = z.infer<typeof assetSchema>;
 
 interface NewAssetFormProps {
-  setDialogOpen: (open: boolean) => void;
+  setDialogOpen?: (open: boolean) => void;
+  asset?: Asset;
 }
 
-export function NewAssetForm({ setDialogOpen }: NewAssetFormProps) {
+export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
+  const isEditMode = !!asset;
 
   const form = useForm<AssetFormValues>({
     resolver: zodResolver(assetSchema),
     defaultValues: {
-      name: '',
-      owner: '',
-      tags: '',
+      name: asset?.name || '',
+      type: asset?.type,
+      owner: asset?.owner || '',
+      classification: asset?.classification,
+      status: asset?.status,
+      tags: asset?.tags?.join(', ') || '',
     },
   });
 
@@ -59,26 +66,40 @@ export function NewAssetForm({ setDialogOpen }: NewAssetFormProps) {
     if (!firestore || !user) return;
 
     try {
-      const assetsCollection = collection(firestore, 'assets');
       const tagsArray = values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
       
-      addDocumentNonBlocking(assetsCollection, {
-        ...values,
-        tags: tagsArray,
-        compliance: Math.floor(Math.random() * 101), // Random compliance for now
-        id: `ASSET-${String(Date.now()).slice(-5)}`, // simple unique id
-      });
-      toast({
-        title: 'Asset created',
-        description: `${values.name} has been successfully created.`,
-      });
-      setDialogOpen(false);
+      if (isEditMode) {
+        const assetRef = doc(firestore, 'assets', asset.id);
+        setDocumentNonBlocking(assetRef, {
+            ...asset,
+            ...values,
+            tags: tagsArray,
+        }, { merge: true });
+        toast({
+          title: 'Asset updated',
+          description: `${values.name} has been successfully updated.`,
+        });
+      } else {
+        const assetsCollection = collection(firestore, 'assets');
+        addDocumentNonBlocking(assetsCollection, {
+          ...values,
+          tags: tagsArray,
+          compliance: Math.floor(Math.random() * 101), // Random compliance for now
+          id: `ASSET-${String(Date.now()).slice(-5)}`, // simple unique id
+        });
+        toast({
+          title: 'Asset created',
+          description: `${values.name} has been successfully created.`,
+        });
+      }
+      
+      if(setDialogOpen) setDialogOpen(false);
     } catch (error) {
-      console.error('Error creating asset:', error);
+      console.error('Error saving asset:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to create asset.',
+        description: 'Failed to save asset.',
       });
     }
   };
@@ -196,10 +217,8 @@ export function NewAssetForm({ setDialogOpen }: NewAssetFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">Create Asset</Button>
+        <Button type="submit">{isEditMode ? 'Save Changes' : 'Create Asset'}</Button>
       </form>
     </Form>
   );
 }
-
-    

@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -73,11 +74,13 @@ interface AssetTableProps {
 export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
   
   const [assetToDelete, setAssetToDelete] = React.useState<Asset | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
   const assetsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
     const baseCollection = collection(firestore, 'assets');
     if (assetTypeFilter === 'all') {
       return baseCollection;
@@ -90,6 +93,10 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   const handleDeleteClick = (asset: Asset) => {
     setAssetToDelete(asset);
     setIsDeleteDialogOpen(true);
+  };
+  
+  const handleEditClick = (asset: Asset) => {
+    router.push(`/assets/${asset.id}`);
   };
 
   const confirmDelete = () => {
@@ -153,8 +160,8 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem>View Details</DropdownMenuItem>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => handleEditClick(asset)}>View Details</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => handleEditClick(asset)}>Edit</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive"
