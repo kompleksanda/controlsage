@@ -264,7 +264,8 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com"
     ]
   },
   "firestore": {
@@ -401,3 +402,4 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the core design principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). Authorization Independence is achieved through denormalization of authorization-related data, eliminating the need for `get()` calls in security rules. Structural Segregation is employed to ensure that all documents within a collection share the same security requirements. Access Modeling uses consistent patterns for authorization, leveraging path-based ownership and membership maps.\n\nSpecifically:\n\n*   **Users**: User data is stored in `/users/{userId}`. The `userId` acts as the document ID, and Google ID is stored alongside user data to support Google Login.\n*   **Roles**: Roles are managed in the `/roles/{roleId}` collection.  A user's role ID is denormalized into the user document.\n*   **Assets**: Assets are stored in `/assets/{assetId}`. The `ownerId` field within the Asset document links to the user who owns the asset.\n*   **AssetTypes**: Asset types are stored in `/assetTypes/{assetTypeId}`.\n*   **Controls**: Controls are stored in `/controls/{controlId}`. The `ownerId` field in the Control document links to the user responsible for the control.\n*   **ControlTypes**: Control types are stored in `/controlTypes/{controlTypeId}`.\n*   **ControlImplementations**: Control implementations are stored in `/controlImplementations/{controlImplementationId}`.\n*   **AuditLogs**: Audit logs are stored in `/auditLogs/{auditLogId}`. Each log includes a `userId` to track which user performed the action.\n\nThis structure achieves Authorization Independence by avoiding hierarchical authorization dependencies. For instance, accessing a Control does not require fetching the User or ControlType document. Instead, relevant data (such as the `ownerId`) is stored directly within the Control document. This makes it possible to implement atomic operations using transactions and batches.\n\nThe structure supports required QAPs (Rules are not Filters) by using structural segregation and membership models. Each top-level collection (users, assets, controls, etc.) represents a distinct security context. The use of `ownerId` field consistently allows us to secure `list` operations. For example, listing assets can be secured to only return assets owned by the requesting user, as the `ownerId` is a property of each Asset document. Dedicated collections such as `/roles/{roleId}` help define global roles based on the existence of documents."
   }
 }
+    
