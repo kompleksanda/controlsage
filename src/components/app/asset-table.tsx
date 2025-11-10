@@ -81,7 +81,7 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
 
   const assetsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    const baseCollection = collection(firestore, 'users', user.uid, 'assets');
+    const baseCollection = collection(firestore, 'assets');
     if (assetTypeFilter === 'all') {
       return baseCollection;
     }
@@ -100,8 +100,8 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   };
 
   const confirmDelete = () => {
-    if (assetToDelete && firestore && user) {
-      const assetRef = doc(firestore, "users", user.uid, "assets", assetToDelete.id);
+    if (assetToDelete && firestore) {
+      const assetRef = doc(firestore, "assets", assetToDelete.id);
       deleteDocumentNonBlocking(assetRef);
       toast({
         title: "Asset Deleted",
@@ -114,6 +114,10 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
 
   if (isLoading || isUserLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <div>Please log in to view assets.</div>
   }
 
   return (

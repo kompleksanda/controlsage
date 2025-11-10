@@ -62,7 +62,7 @@ export function NewControlForm({ setDialogOpen }: NewControlFormProps) {
     if (!firestore || !user) return;
 
     try {
-      const controlsCollection = collection(firestore, 'users', user.uid, 'controls');
+      const controlsCollection = collection(firestore, 'controls');
       const controlRef = doc(controlsCollection, values.id);
       setDocumentNonBlocking(controlRef, { ...values, ownerId: user.uid }, {});
       toast({

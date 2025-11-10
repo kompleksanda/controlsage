@@ -26,11 +26,10 @@ function getStatusVariant(status: Asset['status']) {
 
 function AssignedAssetRow({ assetId }: { assetId: string }) {
   const firestore = useFirestore();
-  const { user } = useUser();
   const assetRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'users', user.uid, 'assets', assetId)
-  }, [firestore, user, assetId]);
+    if (!firestore) return null;
+    return doc(firestore, 'assets', assetId)
+  }, [firestore, assetId]);
 
   const { data: asset, isLoading } = useDoc<Asset>(assetRef);
 

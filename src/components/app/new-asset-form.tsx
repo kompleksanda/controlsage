@@ -65,7 +65,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
 
     try {
       const tagsArray = values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-      const assetsCollection = collection(firestore, 'users', user.uid, 'assets');
+      const assetsCollection = collection(firestore, 'assets');
       
       if (isEditMode && asset) {
         const assetRef = doc(assetsCollection, asset.id);

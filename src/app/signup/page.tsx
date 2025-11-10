@@ -26,13 +26,23 @@ export default function SignUpPage() {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user && firestore) {
-          // Create user document
           const userRef = doc(firestore, 'users', user.uid);
           setDocumentNonBlocking(userRef, {
             id: user.uid,
             email: user.email,
             role: 'Viewer' // Default role
           }, { merge: true });
+
+          // Check if the user is the special admin
+          if (user.email === 'bynarikompleks@gmail.com') {
+            const adminRoleRef = doc(firestore, 'roles_admin', user.uid);
+            // Create a document in roles_admin to grant admin privileges
+            setDocumentNonBlocking(adminRoleRef, {
+                id: user.uid,
+                email: user.email,
+            }, { merge: true });
+          }
+
           router.push('/dashboard');
         }
       }, (error) => {

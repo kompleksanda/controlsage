@@ -293,17 +293,17 @@
       },
       "description": "Stores user data. Path-based ownership ensures only the user or an admin can access the data."
     },
-    "/users/{userId}/assets/{assetId}": {
+    "/assets/{assetId}": {
       "schema": {
         "$ref": "#/backend/entities/Asset"
       },
-      "description": "Stores assets owned by a specific user. Enforces path-based ownership for security."
+      "description": "Stores all assets. Publicly readable, admin-only writes."
     },
-    "/users/{userId}/controls/{controlId}": {
+    "/controls/{controlId}": {
       "schema": {
         "$ref": "#/backend/entities/Control"
       },
-      "description": "Stores controls owned by a specific user. Enforces path-based ownership for security."
+      "description": "Stores all controls. Publicly readable, admin-only writes."
     },
     "/controlImplementations/{controlImplementationId}": {
       "schema": {

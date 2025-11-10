@@ -49,7 +49,7 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
     
     const controlsQuery = useMemoFirebase(() => {
       if (!firestore || !user) return null;
-      const baseCollection = collection(firestore, 'users', user.uid, 'controls');
+      const baseCollection = collection(firestore, 'controls');
       if (frameworkFilter === 'all') {
         return baseCollection;
       }
@@ -71,6 +71,10 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
 
     if (isLoading || isUserLoading) {
         return <div>Loading...</div>;
+    }
+    
+    if (!user) {
+        return <div>Please log in to view controls.</div>
     }
 
   return (

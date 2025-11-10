@@ -2,7 +2,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { NewAssetForm } from '@/components/app/new-asset-form';
@@ -15,12 +15,11 @@ export default function AssetDetailsPage() {
   const params = useParams();
   const { assetId } = params;
   const firestore = useFirestore();
-  const { user } = useUser();
 
   const assetRef = useMemoFirebase(() => {
-    if (!firestore || !assetId || !user) return null;
-    return doc(firestore, 'users', user.uid, 'assets', assetId as string);
-  }, [firestore, user, assetId]);
+    if (!firestore || !assetId) return null;
+    return doc(firestore, 'assets', assetId as string);
+  }, [firestore, assetId]);
 
   const { data: asset, isLoading } = useDoc<Asset>(assetRef);
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Control } from '@/lib/data';
@@ -13,13 +13,11 @@ export default function ControlDetailsPage() {
   const params = useParams();
   const { controlId } = params;
   const firestore = useFirestore();
-  const { user } = useUser();
 
   const controlRef = useMemoFirebase(() => {
-    if (!firestore || !controlId || !user) return null;
-    // The controlId from URL might be encoded, so decode it.
-    return doc(firestore, 'users', user.uid, 'controls', decodeURIComponent(controlId as string));
-  }, [firestore, user, controlId]);
+    if (!firestore || !controlId) return null;
+    return doc(firestore, 'controls', decodeURIComponent(controlId as string));
+  }, [firestore, controlId]);
 
   const { data: control, isLoading } = useDoc<Control>(controlRef);
 

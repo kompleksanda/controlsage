@@ -25,16 +25,16 @@ export async function GET() {
     }
     const userId = user.uid;
 
-    // Seed assets under the user
+    // Seed assets in top-level collection
     const assetPromises = assets.map(async (asset) => {
-      const assetDocRef = firestore.collection('users').doc(userId).collection('assets').doc(asset.id);
+      const assetDocRef = firestore.collection('assets').doc(asset.id);
       await assetDocRef.set({ ...asset, ownerId: userId });
     });
     await Promise.all(assetPromises);
 
-    // Seed controls under the user
+    // Seed controls in top-level collection
     const controlPromises = controls.map(async (control) => {
-      const controlDocRef = firestore.collection('users').doc(userId).collection('controls').doc(control.id);
+      const controlDocRef = firestore.collection('controls').doc(control.id);
       await controlDocRef.set({ ...control, ownerId: userId });
     });
     await Promise.all(controlPromises);
@@ -50,7 +50,7 @@ export async function GET() {
     await Promise.all(auditLogPromises);
 
     return NextResponse.json({
-      message: `Database seeded successfully for user ${userId}`,
+      message: `Database seeded successfully. Data owned by user ${userId}`,
     });
   } catch (error) {
     console.error('Error seeding database:', error);

@@ -36,7 +36,7 @@ export function AssignControlDialog({ isOpen, setIsOpen, control }: AssignContro
 
   const assetsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, 'users', user.uid, 'assets');
+    return collection(firestore, 'assets');
   }, [firestore, user]);
   
   const { data: assets, isLoading } = useCollection<Asset>(assetsQuery);
