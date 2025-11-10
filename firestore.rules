@@ -48,6 +48,14 @@ service cloud.firestore {
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
+    
+    /**
+     * @description A function to check if the user is the special admin.
+     * @returns {boolean} True if the user's email matches the admin email.
+     */
+    function isAdminEmail() {
+      return request.auth.token.email == 'bynarikompleks@gmail.com';
+    }
 
     /**
      * @description Rules for user profiles.
@@ -71,12 +79,13 @@ service cloud.firestore {
      * @path /roles_admin/{userId}
      * @allow (create) A new user can create their admin role document ONLY if they are the special admin email.
      * @allow (get) Any signed-in user can check if another user is an admin. This is required for UI rendering.
-     * @deny (list, update, delete) No one can list, update, or delete admin roles directly.
+     * @allow (update) The admin can update their own role document.
+     * @deny (list, delete) No one can list or delete admin roles directly.
      */
     match /roles_admin/{userId} {
       allow get: if isSignedIn();
-      allow list, update, delete: if false;
-      allow create: if isOwner(userId) && request.auth.token.email == 'bynarikompleks@gmail.com';
+      allow list, delete: if false;
+      allow create, update: if isOwner(userId) && isAdminEmail();
     }
 
     /**
