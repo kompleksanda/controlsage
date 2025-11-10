@@ -34,7 +34,11 @@ export function AssignControlDialog({ isOpen, setIsOpen, control }: AssignContro
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState('all');
 
-  const assetsQuery = useMemoFirebase(() => collection(firestore, 'assets'), [firestore]);
+  const assetsQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, 'users', user.uid, 'assets');
+  }, [firestore, user]);
+  
   const { data: assets, isLoading } = useCollection<Asset>(assetsQuery);
 
   const allTags = useMemo(() => {
@@ -175,5 +179,3 @@ export function AssignControlDialog({ isOpen, setIsOpen, control }: AssignContro
     </Dialog>
   );
 }
-    
-    

@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useCollection, useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection, query, where, doc } from "firebase/firestore";
 import type { ControlAssignment, Control } from "@/lib/data";
 
@@ -26,7 +26,12 @@ function getStatusVariant(status: Control['status']) {
 
 function AssignedControlRow({ controlId }: { controlId: string }) {
   const firestore = useFirestore();
-  const controlRef = useMemoFirebase(() => doc(firestore, 'controls', controlId), [firestore, controlId]);
+  const { user } = useUser();
+  const controlRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid, 'controls', controlId)
+  }, [firestore, user, controlId]);
+  
   const { data: control, isLoading } = useDoc<Control>(controlRef);
 
   if (isLoading || !control) {

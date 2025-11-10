@@ -26,14 +26,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { useToast } from "@/hooks/use-toast";
 import type { Asset } from "@/lib/data";
@@ -73,6 +72,7 @@ interface AssetTableProps {
 
 export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
   const router = useRouter();
   
@@ -80,13 +80,13 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
   const assetsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    const baseCollection = collection(firestore, 'assets');
+    if (!firestore || !user) return null;
+    const baseCollection = collection(firestore, 'users', user.uid, 'assets');
     if (assetTypeFilter === 'all') {
       return baseCollection;
     }
     return query(baseCollection, where('type', '==', assetTypeFilter));
-  }, [firestore, assetTypeFilter]);
+  }, [firestore, user, assetTypeFilter]);
 
   const { data: assets, isLoading } = useCollection<Asset>(assetsQuery);
 
@@ -95,13 +95,13 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
     setIsDeleteDialogOpen(true);
   };
   
-  const handleEditClick = (asset: Asset) => {
+  const handleViewDetailsClick = (asset: Asset) => {
     router.push(`/assets/${asset.id}`);
   };
 
   const confirmDelete = () => {
-    if (assetToDelete && firestore) {
-      const assetRef = doc(firestore, "assets", assetToDelete.id);
+    if (assetToDelete && firestore && user) {
+      const assetRef = doc(firestore, "users", user.uid, "assets", assetToDelete.id);
       deleteDocumentNonBlocking(assetRef);
       toast({
         title: "Asset Deleted",
@@ -160,8 +160,7 @@ export function AssetTable({ assetTypeFilter }: AssetTableProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onSelect={() => handleEditClick(asset)}>View Details</DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => handleViewDetailsClick(asset)}>View Details</DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive"
                       onSelect={() => handleDeleteClick(asset)}

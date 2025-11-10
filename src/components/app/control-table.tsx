@@ -20,7 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import type { Control } from "@/lib/data";
 import { collection, query, where } from "firebase/firestore";
 import { AssignControlDialog } from "./assign-control-dialog";
@@ -44,14 +44,17 @@ interface ControlTableProps {
 
 export function ControlTable({ frameworkFilter }: ControlTableProps) {
     const firestore = useFirestore();
+    const { user } = useUser();
     const router = useRouter();
+    
     const controlsQuery = useMemoFirebase(() => {
-      const baseCollection = collection(firestore, 'controls');
+      if (!firestore || !user) return null;
+      const baseCollection = collection(firestore, 'users', user.uid, 'controls');
       if (frameworkFilter === 'all') {
         return baseCollection;
       }
       return query(baseCollection, where('framework', '==', frameworkFilter));
-    }, [firestore, frameworkFilter]);
+    }, [firestore, user, frameworkFilter]);
     
     const { data: controls, isLoading } = useCollection<Control>(controlsQuery);
     const [selectedControl, setSelectedControl] = React.useState<Control | null>(null);
@@ -63,7 +66,7 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
     };
 
     const handleViewDetailsClick = (control: Control) => {
-      router.push(`/controls/${control.id}`);
+      router.push(`/controls/${encodeURIComponent(control.id)}`);
     };
 
     if (isLoading) {
@@ -125,4 +128,3 @@ export function ControlTable({ frameworkFilter }: ControlTableProps) {
     </>
   );
 }
-    

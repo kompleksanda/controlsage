@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useFirestore, useUser } from '@/firebase';
-import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Asset } from '@/lib/data';
@@ -69,9 +69,10 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
 
     try {
       const tagsArray = values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+      const assetsCollection = collection(firestore, 'users', user.uid, 'assets');
       
       if (isEditMode && asset) {
-        const assetRef = doc(firestore, 'assets', asset.id);
+        const assetRef = doc(assetsCollection, asset.id);
         setDocumentNonBlocking(assetRef, {
             ...asset,
             ...values,
@@ -83,13 +84,13 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
         });
         router.push('/assets');
       } else {
-        const assetsCollection = collection(firestore, 'assets');
         const newAssetId = `ASSET-${String(Date.now()).slice(-5)}`;
         const assetRef = doc(assetsCollection, newAssetId);
         setDocumentNonBlocking(assetRef, {
           ...values,
           id: newAssetId,
           tags: tagsArray,
+          ownerId: user.uid,
           compliance: Math.floor(Math.random() * 101), // Random compliance for now
         }, {});
         toast({
@@ -171,7 +172,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a classification" />
-                  </SelectTrigger>
+                  </Trigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="Critical">Critical</SelectItem>
@@ -194,7 +195,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
+                  </Trigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="Active">Active</SelectItem>
@@ -227,5 +228,3 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
     </Form>
   );
 }
-
-    

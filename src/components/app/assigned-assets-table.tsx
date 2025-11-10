@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useCollection, useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection, query, where, doc } from "firebase/firestore";
 import type { ControlAssignment, Asset } from "@/lib/data";
 
@@ -26,7 +26,12 @@ function getStatusVariant(status: Asset['status']) {
 
 function AssignedAssetRow({ assetId }: { assetId: string }) {
   const firestore = useFirestore();
-  const assetRef = useMemoFirebase(() => doc(firestore, 'assets', assetId), [firestore, assetId]);
+  const { user } = useUser();
+  const assetRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid, 'assets', assetId)
+  }, [firestore, user, assetId]);
+
   const { data: asset, isLoading } = useDoc<Asset>(assetRef);
 
   if (isLoading || !asset) {
@@ -60,6 +65,7 @@ interface AssignedAssetsTableProps {
 
 export function AssignedAssetsTable({ controlId }: AssignedAssetsTableProps) {
   const firestore = useFirestore();
+  
   const assignmentsQuery = useMemoFirebase(() => {
     const baseCollection = collection(firestore, 'controlAssignments');
     return query(baseCollection, where('controlId', '==', controlId));

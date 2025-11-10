@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -45,6 +45,7 @@ interface NewControlFormProps {
 
 export function NewControlForm({ setDialogOpen }: NewControlFormProps) {
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
 
   const form = useForm<ControlFormValues>({
@@ -58,12 +59,12 @@ export function NewControlForm({ setDialogOpen }: NewControlFormProps) {
   });
 
   const onSubmit = async (values: ControlFormValues) => {
-    if (!firestore) return;
+    if (!firestore || !user) return;
 
     try {
-      const controlsCollection = collection(firestore, 'controls');
+      const controlsCollection = collection(firestore, 'users', user.uid, 'controls');
       const controlRef = doc(controlsCollection, values.id);
-      setDocumentNonBlocking(controlRef, values, {});
+      setDocumentNonBlocking(controlRef, { ...values, ownerId: user.uid }, {});
       toast({
         title: 'Control created',
         description: `${values.name} has been successfully created.`,
@@ -212,5 +213,3 @@ export function NewControlForm({ setDialogOpen }: NewControlFormProps) {
     </Form>
   );
 }
-
-    
