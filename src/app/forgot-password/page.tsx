@@ -29,14 +29,15 @@ export default function ForgotPasswordPage() {
     setSuccess(null);
 
     if (!auth) {
-      setError('Authentication service is not available.');
+      setError('Authentication service is not available. Please try again in a moment.');
       return;
     }
 
     try {
       await sendPasswordReset(auth, email);
-      setSuccess('If an account exists for this email, a password reset link has been sent.');
+      setSuccess('If an account exists for this email, a password reset link has been sent. Please check your inbox (and spam folder).');
     } catch (err: any) {
+      // Provide a generic error to avoid leaking information about registered users
       setError(err.message);
     }
   };
