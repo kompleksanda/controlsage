@@ -167,7 +167,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a classification" />
-                  </Trigger>
+                  </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="Critical">Critical</SelectItem>
@@ -190,7 +190,7 @@ export function NewAssetForm({ setDialogOpen, asset }: NewAssetFormProps) {
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a status" />
-                  </Trigger>
+                  </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="Active">Active</SelectItem>
