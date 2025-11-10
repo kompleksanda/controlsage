@@ -1,7 +1,7 @@
 export type Asset = {
   id: string;
   name: string;
-  type: 'Server' | 'Application' | 'Database' | 'Endpoint' | 'Software';
+  type: 'Server' | 'Application' | 'Database' | 'Endpoint' | 'Software Feature';
   owner: string;
   classification: 'Critical' | 'High' | 'Medium' | 'Low';
   status: 'Active' | 'Inactive' | 'Decommissioned';

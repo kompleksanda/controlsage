@@ -70,7 +70,7 @@ export default function AssetsPage() {
                               <TabsTrigger value="Application">Applications</TabsTrigger>
                               <TabsTrigger value="Database" className="hidden sm:flex">Databases</TabsTrigger>
                               <TabsTrigger value="Endpoint" className="hidden sm:flex">Endpoints</TabsTrigger>
-                              <TabsTrigger value="Software" className="hidden sm:flex">Software</TabsTrigger>
+                              <TabsTrigger value="Software Feature" className="hidden sm:flex">Software Features</TabsTrigger>
                           </TabsList>
                           <TabsContent value={assetTypeFilter}>
                             <AssetTable assetTypeFilter={assetTypeFilter} />

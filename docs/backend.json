@@ -62,7 +62,7 @@
         },
         "type": {
           "type": "string",
-          "description": "Type of asset (e.g., Server, Application, Database)."
+          "description": "Type of asset (e.g., Server, Application, Database, Software Feature)."
         },
         "ownerId": {
           "type": "string",
@@ -78,3 +78,9 @@ Here is the plan:
 2.  Update the `docs/backend.json` file to reflect that `google.com` is an active provider.
 
 I am starting the backend process now.
+"
+        }
+      }
+    }
+  }
+}
