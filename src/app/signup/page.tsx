@@ -9,18 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ControlSageLogo } from '@/components/icons';
-import { initiateEmailSignUp, useAuth, setDocumentNonBlocking } from '@/firebase';
+import { initiateEmailSignUp, useAuth } from '@/firebase';
 import { onAuthStateChanged, type AuthError } from 'firebase/auth';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { doc } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const auth = useAuth();
-  const firestore = useFirestore();
   const router = useRouter();
 
   const handleAuthError = useCallback((error: AuthError) => {
@@ -30,33 +27,16 @@ export default function SignUpPage() {
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user && firestore) {
-          const isSpecialAdmin = user.email === 'bynarikompleks@gmail.com';
-          const userRef = doc(firestore, 'users', user.uid);
-          
-          setDocumentNonBlocking(userRef, {
-            id: user.uid,
-            email: user.email,
-            role: isSpecialAdmin ? 'Admin' : 'Viewer'
-          }, { merge: true });
-
-          // Check if the user is the special admin
-          if (isSpecialAdmin) {
-            const adminRoleRef = doc(firestore, 'roles_admin', user.uid);
-            // Create a document in roles_admin to grant admin privileges
-            setDocumentNonBlocking(adminRoleRef, {
-                id: user.uid,
-                email: user.email,
-            }, { merge: true });
-          }
-
+        if (user) {
+          // The role creation logic is now handled centrally in FirebaseProvider.
+          // This ensures that regardless of sign-up or login, the role is provisioned correctly.
           router.push('/dashboard');
         }
       }, (error) => {
           handleAuthError(error as AuthError);
       });
     return () => unsubscribe();
-  }, [auth, firestore, router, handleAuthError]);
+  }, [auth, router, handleAuthError]);
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();

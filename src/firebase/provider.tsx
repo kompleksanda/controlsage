@@ -6,6 +6,7 @@ import { Firestore, doc } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 import { useDoc } from './firestore/use-doc';
+import { setDocumentNonBlocking } from './non-blocking-updates';
 
 // Define the shape of the user profile document in Firestore
 interface UserProfile {
@@ -105,6 +106,33 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     );
     return () => unsubscribe(); 
   }, [auth]);
+
+  // HOLISTIC FIX: Centralize user profile and admin role creation here.
+  // This effect runs whenever the user is authenticated.
+  useEffect(() => {
+    if (userAuthState.user && firestore) {
+      const user = userAuthState.user;
+      const isSpecialAdmin = user.email === 'bynarikompleks@gmail.com';
+
+      // Create/update the main user profile
+      const userRef = doc(firestore, 'users', user.uid);
+      setDocumentNonBlocking(userRef, {
+        id: user.uid,
+        email: user.email,
+        role: isSpecialAdmin ? 'Admin' : 'Viewer' // Assign role based on email
+      }, { merge: true });
+
+      // If the user is the special admin, ensure their role document exists.
+      if (isSpecialAdmin) {
+        const adminRoleRef = doc(firestore, 'roles_admin', user.uid);
+        // This write operation is critical for the security rules to pass.
+        setDocumentNonBlocking(adminRoleRef, {
+            id: user.uid,
+            email: user.email,
+        }, { merge: true });
+      }
+    }
+  }, [userAuthState.user, firestore]);
 
   // Fetch the user's profile to get their base role
   const userDocRef = useMemoFirebase(() => {
