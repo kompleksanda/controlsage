@@ -7,9 +7,12 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { DollarSign, ShieldCheck, Server, AlertTriangle } from "lucide-react"
-import { DashboardCharts } from "@/components/app/dashboard-charts"
-import { AssetRelationshipGraph } from "@/components/app/asset-relationship-graph";
+import dynamic from "next/dynamic"
 import { Separator } from "@/components/ui/separator";
+
+const DashboardCharts = dynamic(() => import("@/components/app/dashboard-charts").then(mod => mod.DashboardCharts), { ssr: false, loading: () => <p>Loading charts...</p> });
+const AssetRelationshipGraph = dynamic(() => import("@/components/app/asset-relationship-graph").then(mod => mod.AssetRelationshipGraph), { ssr: false, loading: () => <p>Loading graph...</p> });
+
 
 export default function DashboardPage() {
   return (
